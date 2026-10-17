@@ -1,0 +1,46 @@
+.viewport {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: #f4f6f8;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.canvas {
+  position: absolute !important;
+  inset: 0;
+}
+
+.hud {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  display: flex;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.chip {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-default);
+  background: rgb(255 255 255 / 88%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+
+.help {
+  position: absolute;
+  inset-block-end: var(--space-3);
+  inset-inline-end: var(--space-3);
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background: rgb(255 255 255 / 80%);
+  border-radius: var(--radius-md);
+  pointer-events: none;
+}

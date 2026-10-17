@@ -1,0 +1,41 @@
+{
+  "app": {
+    "title": "Trình chỉnh sửa bố trí",
+    "project": "Phòng điện · ER-104"
+  },
+  "toolbar": {
+    "undo": "Hoàn tác",
+    "redo": "Làm lại",
+    "language": "Ngôn ngữ"
+  },
+  "panels": {
+    "palette": "Thiết bị",
+    "list": "Thiết bị đã đặt",
+    "properties": "Thuộc tính",
+    "rules": "Kiểm tra quy tắc",
+    "bom": "Danh mục vật tư"
+  },
+  "empty": {
+    "list": "Chưa đặt thiết bị nào",
+    "listHint": "Chọn thiết bị, sau đó nhấp vào sàn để đặt.",
+    "properties": "Chưa chọn mục nào",
+    "propertiesHint": "Chọn một thiết bị trong chế độ xem 3D hoặc trong danh sách.",
+    "rules": "Không có vi phạm",
+    "rulesHint": "Các thiết bị cách nhau dưới {{clearance}} m sẽ được liệt kê tại đây.",
+    "bom": "Chưa có gì để đếm",
+    "bomHint": "Danh mục vật tư được cập nhật khi bạn đặt thiết bị."
+  },
+  "items": {
+    "cabinet": "Tủ điều khiển",
+    "drive": "Biến tần",
+    "transformer": "Máy biến áp"
+  },
+  "palette": {
+    "size": "{{w}} × {{d}} × {{h}} m"
+  },
+  "viewport": {
+    "label": "Chế độ xem bố trí 3D",
+    "floor": "Sàn {{w}} m × {{d}} m · lưới {{cell}} m",
+    "help": "Kéo để xoay · Kéo chuột phải để di chuyển · Cuộn để thu phóng"
+  }
+}

@@ -1,0 +1,47 @@
+.app {
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr) 300px;
+  grid-template-rows: 52px minmax(0, 1fr);
+  grid-template-areas:
+    'top top top'
+    'left center right';
+  gap: var(--space-3);
+  height: 100vh;
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.top {
+  grid-area: top;
+}
+
+.left,
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+}
+
+.left {
+  grid-area: left;
+}
+
+.right {
+  grid-area: right;
+}
+
+.center {
+  grid-area: center;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 200px;
+  gap: var(--space-3);
+  min-height: 0;
+}
+
+.grow {
+  flex: 1;
+}
+
+.bom {
+  min-height: 0;
+}

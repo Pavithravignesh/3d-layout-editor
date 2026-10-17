@@ -1,0 +1,41 @@
+{
+  "app": {
+    "title": "Layout Editor",
+    "project": "Electrical room · ER-104"
+  },
+  "toolbar": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "language": "Language"
+  },
+  "panels": {
+    "palette": "Equipment",
+    "list": "Placed items",
+    "properties": "Properties",
+    "rules": "Rule check",
+    "bom": "Bill of materials"
+  },
+  "empty": {
+    "list": "No items placed yet",
+    "listHint": "Choose equipment, then click on the floor to place it.",
+    "properties": "Nothing selected",
+    "propertiesHint": "Select an item in the 3D view or in the list.",
+    "rules": "All clear",
+    "rulesHint": "Items closer than {{clearance}} m will be listed here.",
+    "bom": "Nothing to count yet",
+    "bomHint": "The bill of materials updates as you place items."
+  },
+  "items": {
+    "cabinet": "Control cabinet",
+    "drive": "Variable-speed drive",
+    "transformer": "Transformer"
+  },
+  "palette": {
+    "size": "{{w}} × {{d}} × {{h}} m"
+  },
+  "viewport": {
+    "label": "3D layout view",
+    "floor": "Floor {{w}} m × {{d}} m · {{cell}} m grid",
+    "help": "Drag to orbit · Right-drag to pan · Scroll to zoom"
+  }
+}

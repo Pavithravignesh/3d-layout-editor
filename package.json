@@ -4,6 +4,43 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write src",
+    "dev:office": "node scripts/office.mjs dev",
+    "build:office": "tsc --noEmit && node scripts/office.mjs build",
+    "test:office": "node scripts/office.mjs test",
     "push": "node tools/push.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "9.122.0",
+    "@react-three/fiber": "8.18.0",
+    "i18next": "23.16.8",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-i18next": "15.4.1",
+    "three": "0.169.0",
+    "zustand": "5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.15.0",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@types/three": "0.169.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "eslint": "9.15.0",
+    "eslint-plugin-react-hooks": "5.0.0",
+    "eslint-plugin-react-refresh": "0.4.14",
+    "globals": "15.12.0",
+    "prettier": "3.3.3",
+    "typescript": "5.6.3",
+    "typescript-eslint": "8.15.0",
+    "vite": "5.4.21",
+    "vitest": "2.1.9"
   }
 }
