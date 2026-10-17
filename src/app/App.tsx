@@ -6,10 +6,12 @@ import { Viewport } from '../scene/Viewport';
 import { Palette } from '../ui/Palette';
 import { TopBar } from '../ui/TopBar';
 import styles from './App.module.css';
+import { useShortcuts } from './useShortcuts';
 
 export function App() {
   const { t } = useTranslation();
   const fmt = useFormat();
+  useShortcuts();
 
   return (
     <div className={styles.app}>

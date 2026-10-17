@@ -4,9 +4,19 @@
     "project": "Electrical room · ER-104"
   },
   "toolbar": {
-    "undo": "Undo",
-    "redo": "Redo",
+    "undo": "Undo (Ctrl+Z)",
+    "redo": "Redo (Ctrl+Y)",
+    "undoAction": "Undo {{action}} (Ctrl+Z)",
+    "redoAction": "Redo {{action}} (Ctrl+Y)",
     "language": "Language"
+  },
+  "actions": {
+    "add": "add {{target}}",
+    "remove": "delete {{target}}",
+    "move": "move {{target}}",
+    "rotate": "rotate {{target}}",
+    "update": "edit {{target}}",
+    "batch": "{{target}}"
   },
   "panels": {
     "palette": "Equipment",
@@ -31,10 +41,13 @@
     "transformer": "Transformer"
   },
   "palette": {
-    "size": "{{w}} × {{d}} × {{h}} m"
+    "size": "{{w}} × {{d}} × {{h}} m",
+    "hint": "Choose equipment, then click the floor to place it.",
+    "placingHint": "Click the floor to place. Shift-click to place several. Esc to cancel."
   },
   "viewport": {
     "label": "3D layout view",
+    "placing": "Placing: {{name}}",
     "floor": "Floor {{w}} m × {{d}} m · {{cell}} m grid",
     "help": "Drag to orbit · Right-drag to pan · Scroll to zoom"
   }

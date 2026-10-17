@@ -2,10 +2,17 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../design-system/Button';
 import { Icon } from '../design-system/Icon';
 import { LANGUAGES } from '../i18n';
+import { useEditor } from '../state/editorStore';
 import styles from './TopBar.module.css';
 
 export function TopBar({ className }: { className?: string }) {
   const { t, i18n } = useTranslation();
+  const lastDone = useEditor((s) => s.history.past.at(-1));
+  const nextRedo = useEditor((s) => s.history.future[0]);
+  const { undo, redo } = useEditor.getState();
+
+  const describe = (command: typeof lastDone) =>
+    command ? t(`actions.${command.kind}`, { target: command.target }) : undefined;
 
   return (
     <header className={[styles.bar, className].filter(Boolean).join(' ')}>
@@ -20,8 +27,20 @@ export function TopBar({ className }: { className?: string }) {
       </div>
 
       <div className={styles.tools}>
-        <Button variant="ghost" icon="undo" label={t('toolbar.undo')} disabled />
-        <Button variant="ghost" icon="redo" label={t('toolbar.redo')} disabled />
+        <Button
+          variant="ghost"
+          icon="undo"
+          label={lastDone ? t('toolbar.undoAction', { action: describe(lastDone) }) : t('toolbar.undo')}
+          disabled={!lastDone}
+          onClick={undo}
+        />
+        <Button
+          variant="ghost"
+          icon="redo"
+          label={nextRedo ? t('toolbar.redoAction', { action: describe(nextRedo) }) : t('toolbar.redo')}
+          disabled={!nextRedo}
+          onClick={redo}
+        />
       </div>
 
       <div className={styles.end}>

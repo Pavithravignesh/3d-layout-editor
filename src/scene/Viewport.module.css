@@ -32,6 +32,12 @@
   backdrop-filter: blur(4px);
 }
 
+.active {
+  color: var(--color-action);
+  background: var(--color-action-soft);
+  border-color: var(--color-action);
+}
+
 .help {
   position: absolute;
   inset-block-end: var(--space-3);

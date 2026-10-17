@@ -4,9 +4,19 @@
     "project": "Phòng điện · ER-104"
   },
   "toolbar": {
-    "undo": "Hoàn tác",
-    "redo": "Làm lại",
+    "undo": "Hoàn tác (Ctrl+Z)",
+    "redo": "Làm lại (Ctrl+Y)",
+    "undoAction": "Hoàn tác: {{action}} (Ctrl+Z)",
+    "redoAction": "Làm lại: {{action}} (Ctrl+Y)",
     "language": "Ngôn ngữ"
+  },
+  "actions": {
+    "add": "thêm {{target}}",
+    "remove": "xóa {{target}}",
+    "move": "di chuyển {{target}}",
+    "rotate": "xoay {{target}}",
+    "update": "sửa {{target}}",
+    "batch": "{{target}}"
   },
   "panels": {
     "palette": "Thiết bị",
@@ -31,10 +41,13 @@
     "transformer": "Máy biến áp"
   },
   "palette": {
-    "size": "{{w}} × {{d}} × {{h}} m"
+    "size": "{{w}} × {{d}} × {{h}} m",
+    "hint": "Chọn thiết bị, sau đó nhấp vào sàn để đặt.",
+    "placingHint": "Nhấp vào sàn để đặt. Giữ Shift khi nhấp để đặt nhiều. Nhấn Esc để hủy."
   },
   "viewport": {
     "label": "Chế độ xem bố trí 3D",
+    "placing": "Đang đặt: {{name}}",
     "floor": "Sàn {{w}} m × {{d}} m · lưới {{cell}} m",
     "help": "Kéo để xoay · Kéo chuột phải để di chuyển · Cuộn để thu phóng"
   }
