@@ -16,7 +16,56 @@
     "move": "move {{target}}",
     "rotate": "rotate {{target}}",
     "update": "edit {{target}}",
-    "batch": "{{target}}"
+    "batch": "add {{target}} test items"
+  },
+  "announce": {
+    "done": "Done: {{action}}",
+    "undo": "Undone: {{action}}",
+    "redo": "Redone: {{action}}"
+  },
+  "list": {
+    "position": "{{x}}, {{z}} m",
+    "warning": "Closer than the minimum clearance to another item"
+  },
+  "props": {
+    "label": "Label",
+    "position": "Position",
+    "positionHint": "North-west corner of the footprint, in metres from the room's north-west corner.",
+    "rotation": "Rotation",
+    "size": "Size",
+    "status": "Clearance",
+    "clear": "Clear of other items",
+    "conflicts_one": "{{count}} item within {{clearance}} m",
+    "conflicts_other": "{{count}} items within {{clearance}} m",
+    "rotate": "Rotate 90°",
+    "delete": "Delete"
+  },
+  "rules": {
+    "minimum": "Minimum clearance between items is {{clearance}} m.",
+    "tooClose": "{{a}} and {{b}} are {{gap}} m apart",
+    "overlap": "{{a}} and {{b}} overlap",
+    "more": "…and {{count}} more"
+  },
+  "bom": {
+    "item": "Item",
+    "code": "Code",
+    "size": "Size (W × D × H)",
+    "quantity": "Quantity",
+    "total": "Total items"
+  },
+  "perf": {
+    "title": "Measured in this browser, updated twice a second",
+    "fps": "{{fps}} fps",
+    "frame": "{{ms}} ms",
+    "calls_one": "{{count}} draw call",
+    "calls_other": "{{count}} draw calls",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "load": "Add {{count}} test items"
+  },
+  "error": {
+    "webgl": "The 3D view could not start",
+    "webglHint": "This browser or device may not support WebGL. The lists and bill of materials still work."
   },
   "panels": {
     "palette": "Equipment",
@@ -47,6 +96,7 @@
   },
   "viewport": {
     "label": "3D layout view",
+    "loading": "Loading 3D view…",
     "placing": "Placing: {{name}}",
     "floor": "Floor {{w}} m × {{d}} m · {{cell}} m grid",
     "help": "Drag to orbit · Right-drag to pan · Scroll to zoom"

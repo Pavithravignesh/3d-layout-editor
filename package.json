@@ -15,6 +15,7 @@
     "dev:office": "node scripts/office.mjs dev",
     "build:office": "tsc --noEmit && node scripts/office.mjs build",
     "test:office": "node scripts/office.mjs test",
+    "preview:office": "node scripts/office.mjs preview",
     "push": "node tools/push.mjs"
   },
   "dependencies": {

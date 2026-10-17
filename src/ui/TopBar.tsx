@@ -1,9 +1,29 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '../design-system/Button';
 import { Icon } from '../design-system/Icon';
-import { LANGUAGES } from '../i18n';
+import { LANGUAGES, useFormat } from '../i18n';
 import { useEditor } from '../state/editorStore';
+import { usePerf } from '../state/perfStore';
 import styles from './TopBar.module.css';
+
+const TEST_ITEMS = 500;
+
+function PerfReadout() {
+  const { t } = useTranslation();
+  const fmt = useFormat();
+  const perf = usePerf();
+  const items = useEditor((s) => s.layout.items.length);
+  return (
+    <p className={styles.perf} title={t('perf.title')}>
+      <strong className={perf.fps && perf.fps < 50 ? styles.slow : undefined}>
+        {t('perf.fps', { fps: perf.fps ? perf.fps : '–' })}
+      </strong>
+      <span>{t('perf.frame', { ms: perf.fps ? fmt.number(perf.frameMs, 1) : '–' })}</span>
+      <span>{t('perf.calls', { count: perf.drawCalls })}</span>
+      <span>{t('perf.items', { count: items })}</span>
+    </p>
+  );
+}
 
 export function TopBar({ className }: { className?: string }) {
   const { t, i18n } = useTranslation();
@@ -44,6 +64,10 @@ export function TopBar({ className }: { className?: string }) {
       </div>
 
       <div className={styles.end}>
+        <PerfReadout />
+        <Button icon="box" size="sm" onClick={() => useEditor.getState().loadTestLayout(TEST_ITEMS)}>
+          {t('perf.load', { count: TEST_ITEMS })}
+        </Button>
         <div className={styles.segmented} role="group" aria-label={t('toolbar.language')}>
           {LANGUAGES.map((lang) => (
             <button

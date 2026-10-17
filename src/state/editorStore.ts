@@ -1,16 +1,21 @@
 import { create } from 'zustand';
 import type { ItemTypeId } from '../domain/catalog';
-import { addItem, removeItem, updateItem, type Command } from '../domain/commands';
+import { addItem, batch, removeItem, updateItem, type Command } from '../domain/commands';
 import { nextRotation, snapToGrid } from '../domain/geometry';
 import { EMPTY_HISTORY, execute, redo, undo, type EditorDoc } from '../domain/history';
 import { nextLabel } from '../domain/labels';
 import { findViolations, type Violation } from '../domain/rules';
+import { generateTestItems } from '../domain/testLayout';
 import { EMPTY_LAYOUT, type Item, type Rotation } from '../domain/types';
+
+/** The most recent change, for screen-reader announcements. */
+export type LastAction = { via: 'do' | 'undo' | 'redo'; command: Command; seq: number } | null;
 
 export type EditorState = EditorDoc & {
   selectedId: string | null;
   /** Item type being placed from the palette, or null when not placing. */
   placing: ItemTypeId | null;
+  lastAction: LastAction;
 
   place(type: ItemTypeId, x: number, z: number): void;
   move(id: string, x: number, z: number): void;
@@ -19,19 +24,22 @@ export type EditorState = EditorDoc & {
   remove(id: string): void;
   select(id: string | null): void;
   startPlacing(type: ItemTypeId | null): void;
+  /** Adds a repeatable set of test items as one undo step, for performance measurement. */
+  loadTestLayout(count: number): void;
   undo(): void;
   redo(): void;
 };
 
 let idCounter = 0;
 const newId = () => `item-${Date.now().toString(36)}-${(idCounter++).toString(36)}`;
+let actionSeq = 0;
 
 export const useEditor = create<EditorState>()((set, get) => {
   /** Runs a command through the history and keeps the selection valid. */
   const run = (command: Command | null, selectedId = get().selectedId) => {
     if (!command) return;
     const doc = execute(get(), command);
-    set({ ...doc, selectedId: keepIfPresent(doc, selectedId) });
+    set({ ...doc, selectedId: keepIfPresent(doc, selectedId), lastAction: { via: 'do', command, seq: ++actionSeq } });
   };
 
   return {
@@ -39,6 +47,7 @@ export const useEditor = create<EditorState>()((set, get) => {
     history: EMPTY_HISTORY,
     selectedId: null,
     placing: null,
+    lastAction: null,
 
     place(type, x, z) {
       const rotation: Rotation = 0;
@@ -74,7 +83,8 @@ export const useEditor = create<EditorState>()((set, get) => {
         changes.x !== undefined || changes.z !== undefined || changes.rotation !== undefined
           ? snapToGrid(item.type, rotation, changes.x ?? item.x, changes.z ?? item.z)
           : {};
-      run(updateItem(get().layout, id, { ...changes, ...position }));
+      const kind = changes.label !== undefined ? 'update' : changes.rotation !== undefined ? 'rotate' : 'move';
+      run(updateItem(get().layout, id, { ...changes, ...position }, kind));
     },
 
     remove(id) {
@@ -90,14 +100,23 @@ export const useEditor = create<EditorState>()((set, get) => {
       set({ placing: type, selectedId: type ? null : get().selectedId });
     },
 
+    loadTestLayout(count) {
+      const items = generateTestItems(get().layout.items, count);
+      run(batch(items.map(addItem), String(count)), null);
+    },
+
     undo() {
+      const command = get().history.past.at(-1);
+      if (!command) return;
       const doc = undo(get());
-      set({ ...doc, selectedId: keepIfPresent(doc, get().selectedId) });
+      set({ ...doc, selectedId: keepIfPresent(doc, get().selectedId), lastAction: { via: 'undo', command, seq: ++actionSeq } });
     },
 
     redo() {
+      const command = get().history.future[0];
+      if (!command) return;
       const doc = redo(get());
-      set({ ...doc, selectedId: keepIfPresent(doc, get().selectedId) });
+      set({ ...doc, selectedId: keepIfPresent(doc, get().selectedId), lastAction: { via: 'redo', command, seq: ++actionSeq } });
     },
   };
 });

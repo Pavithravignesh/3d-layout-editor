@@ -16,7 +16,53 @@
     "move": "di chuyển {{target}}",
     "rotate": "xoay {{target}}",
     "update": "sửa {{target}}",
-    "batch": "{{target}}"
+    "batch": "thêm {{target}} thiết bị thử nghiệm"
+  },
+  "announce": {
+    "done": "Đã thực hiện: {{action}}",
+    "undo": "Đã hoàn tác: {{action}}",
+    "redo": "Đã làm lại: {{action}}"
+  },
+  "list": {
+    "position": "{{x}}, {{z}} m",
+    "warning": "Gần thiết bị khác hơn khoảng cách tối thiểu"
+  },
+  "props": {
+    "label": "Nhãn",
+    "position": "Vị trí",
+    "positionHint": "Góc tây bắc của thiết bị, tính bằng mét từ góc tây bắc của phòng.",
+    "rotation": "Góc xoay",
+    "size": "Kích thước",
+    "status": "Khoảng cách",
+    "clear": "Không vướng thiết bị khác",
+    "conflicts_other": "{{count}} thiết bị trong phạm vi {{clearance}} m",
+    "rotate": "Xoay 90°",
+    "delete": "Xóa"
+  },
+  "rules": {
+    "minimum": "Khoảng cách tối thiểu giữa các thiết bị là {{clearance}} m.",
+    "tooClose": "{{a}} và {{b}} cách nhau {{gap}} m",
+    "overlap": "{{a}} và {{b}} chồng lên nhau",
+    "more": "…và {{count}} vi phạm khác"
+  },
+  "bom": {
+    "item": "Thiết bị",
+    "code": "Mã",
+    "size": "Kích thước (R × S × C)",
+    "quantity": "Số lượng",
+    "total": "Tổng số thiết bị"
+  },
+  "perf": {
+    "title": "Đo trong trình duyệt này, cập nhật hai lần mỗi giây",
+    "fps": "{{fps}} khung/giây",
+    "frame": "{{ms}} ms",
+    "calls_other": "{{count}} lệnh vẽ",
+    "items_other": "{{count}} thiết bị",
+    "load": "Thêm {{count}} thiết bị thử nghiệm"
+  },
+  "error": {
+    "webgl": "Không thể khởi động chế độ xem 3D",
+    "webglHint": "Trình duyệt hoặc thiết bị này có thể không hỗ trợ WebGL. Danh sách và danh mục vật tư vẫn hoạt động."
   },
   "panels": {
     "palette": "Thiết bị",
@@ -47,6 +93,7 @@
   },
   "viewport": {
     "label": "Chế độ xem bố trí 3D",
+    "loading": "Đang tải chế độ xem 3D…",
     "placing": "Đang đặt: {{name}}",
     "floor": "Sàn {{w}} m × {{d}} m · lưới {{cell}} m",
     "help": "Kéo để xoay · Kéo chuột phải để di chuyển · Cuộn để thu phóng"

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FLOOR } from '../domain/floor';
 import { useFormat } from '../i18n';
 import { useEditor } from '../state/editorStore';
+import { PerfProbe } from './perf';
 import { SceneContent } from './SceneContent';
 import styles from './Viewport.module.css';
 
@@ -24,6 +25,7 @@ export function Viewport() {
         <hemisphereLight args={['#ffffff', '#d5dbe3', 1.1]} />
         <directionalLight position={[10, 18, 8]} intensity={1.3} />
         <SceneContent />
+        <PerfProbe />
         <OrbitControls
           makeDefault
           enableDamping

@@ -1,16 +1,27 @@
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, Panel } from '../design-system/Panel';
-import { CLEARANCE } from '../domain/floor';
 import { useFormat } from '../i18n';
-import { Viewport } from '../scene/Viewport';
+import { useEditor, useViolations } from '../state/editorStore';
+import { Announcer } from '../ui/Announcer';
+import { BomTable } from '../ui/BomTable';
+import { ItemList } from '../ui/ItemList';
 import { Palette } from '../ui/Palette';
+import { PropertiesPanel } from '../ui/PropertiesPanel';
+import { RulePanel } from '../ui/RulePanel';
 import { TopBar } from '../ui/TopBar';
 import styles from './App.module.css';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useShortcuts } from './useShortcuts';
+
+// The 3D view (three.js and friends) loads after the panels, so the app is usable sooner.
+const Viewport = lazy(() => import('../scene/Viewport').then((m) => ({ default: m.Viewport })));
 
 export function App() {
   const { t } = useTranslation();
   const fmt = useFormat();
+  const itemCount = useEditor((s) => s.layout.items.length);
+  const violationCount = useViolations().length;
   useShortcuts();
 
   return (
@@ -21,26 +32,48 @@ export function App() {
         <Panel title={t('panels.palette')}>
           <Palette />
         </Panel>
-        <Panel title={t('panels.list')} className={styles.grow}>
-          <EmptyState title={t('empty.list')} hint={t('empty.listHint')} />
+        <Panel title={t('panels.list')} meta={itemCount ? fmt.number(itemCount, 0) : undefined} className={styles.grow}>
+          <ItemList />
         </Panel>
       </aside>
 
       <main className={styles.center}>
-        <Viewport />
+        <ErrorBoundary
+          fallback={
+            <div className={styles.fallback}>
+              <EmptyState title={t('error.webgl')} hint={t('error.webglHint')} />
+            </div>
+          }
+        >
+          <Suspense
+            fallback={
+              <div className={styles.fallback} aria-busy="true">
+                <EmptyState title={t('viewport.loading')} />
+              </div>
+            }
+          >
+            <Viewport />
+          </Suspense>
+        </ErrorBoundary>
         <Panel title={t('panels.bom')} className={styles.bom}>
-          <EmptyState title={t('empty.bom')} hint={t('empty.bomHint')} />
+          <BomTable />
         </Panel>
       </main>
 
       <aside className={styles.right}>
         <Panel title={t('panels.properties')}>
-          <EmptyState title={t('empty.properties')} hint={t('empty.propertiesHint')} />
+          <PropertiesPanel />
         </Panel>
-        <Panel title={t('panels.rules')} className={styles.grow}>
-          <EmptyState title={t('empty.rules')} hint={t('empty.rulesHint', { clearance: fmt.number(CLEARANCE) })} />
+        <Panel
+          title={t('panels.rules')}
+          meta={violationCount ? <span className={styles.badge}>{fmt.number(violationCount, 0)}</span> : undefined}
+          className={styles.grow}
+        >
+          <RulePanel />
         </Panel>
       </aside>
+
+      <Announcer />
     </div>
   );
 }
