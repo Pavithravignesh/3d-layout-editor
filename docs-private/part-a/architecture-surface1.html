@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontend Architecture · Surface 1</title>
+<style>
+  :root {
+    --ink: #1b1f24; --text: #343a40; --sub: #6c757d; --line: #dee2e6; --soft: #f8f9fa;
+    --accent: #1971c2; --accent-soft: #e7f5ff; --purple: #7048e8; --green: #2f9e44; --amber: #f08c00; --red: #e03131;
+  }
+  @page { size: A4; margin: 18mm 17mm 20mm; @bottom-right { content: counter(page) " / " counter(pages); font: 9pt "Segoe UI", sans-serif; color: #868e96; } @bottom-left { content: "Frontend Architecture · Surface 1 · v0.9"; font: 9pt "Segoe UI", sans-serif; color: #868e96; } }
+  @page cover { margin: 0; @bottom-right { content: none; } @bottom-left { content: none; } }
+  @page wide { size: A4 landscape; margin: 12mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font: 10.2pt/1.55 "Segoe UI", "Inter", system-ui, "Microsoft YaHei", sans-serif; color: var(--text); background: #fff; }
+  main { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+  @media print { main { max-width: none; padding: 0; } }
+  h1, h2, h3, h4 { color: var(--ink); line-height: 1.25; margin: 0; }
+  h2 { font-size: 18pt; margin: 0 0 10px; padding-top: 2px; break-before: page; }
+  h2 .num { color: var(--accent); margin-right: 8px; }
+  h3 { font-size: 12.5pt; margin: 20px 0 6px; break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 14px 0 4px; break-after: avoid; }
+  p { margin: 0 0 8px; }
+  ul, ol { margin: 0 0 8px; padding-left: 20px; } li { margin: 2px 0; }
+  code { font: 9pt "Cascadia Code", Consolas, monospace; background: var(--soft); border: 1px solid #edf0f2; border-radius: 4px; padding: 0 4px; color: #1b4f8a; }
+  pre { font: 8.6pt/1.5 "Cascadia Code", Consolas, monospace; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 6px 0 12px; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; font-size: 9.3pt; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th { background: var(--soft); color: var(--ink); font-weight: 600; border-bottom: 1.5px solid #ced4da; }
+  tr { break-inside: avoid; }
+  td.k, th.k { white-space: nowrap; }
+  .lead { font-size: 11pt; color: var(--ink); }
+  .note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 8px 12px; border-radius: 0 6px 6px 0; margin: 8px 0 12px; break-inside: avoid; }
+  .note.warn { border-color: var(--amber); background: #fff9db; }
+  .note b { color: var(--ink); }
+  .tag { display: inline-block; font-size: 8pt; font-weight: 600; padding: 1px 7px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; break-inside: avoid; }
+  .card h4 { margin-top: 0; }
+  .muted { color: var(--sub); }
+  .small { font-size: 8.8pt; }
+
+  /* cover */
+  .cover { page: cover; height: 297mm; display: flex; flex-direction: column; justify-content: space-between; padding: 30mm 22mm 22mm; background: linear-gradient(160deg, #0b2545 0%, #134074 55%, #1971c2 100%); color: #fff; }
+  .cover .brand { font-size: 10pt; letter-spacing: .18em; text-transform: uppercase; opacity: .85; }
+  .cover h1 { color: #fff; font-size: 32pt; line-height: 1.12; margin: 18mm 0 6mm; font-weight: 700; }
+  .cover .subtitle { font-size: 14pt; opacity: .92; max-width: 140mm; }
+  .cover .meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 18px; font-size: 10pt; opacity: .92; }
+  .cover .meta b { font-weight: 600; opacity: .75; }
+  .cover .scope { margin-top: 10mm; display: flex; gap: 8px; flex-wrap: wrap; }
+  .cover .scope span { border: 1px solid rgba(255,255,255,.45); border-radius: 14px; padding: 3px 11px; font-size: 9pt; }
+  .cover .scope span.on { background: #fff; color: #134074; border-color: #fff; font-weight: 600; }
+
+  /* contents */
+  .toc { list-style: none; padding: 0; margin: 10px 0; }
+  .toc li { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px dotted var(--line); }
+  .toc .n { width: 28px; color: var(--accent); font-weight: 600; }
+  .toc .d { color: var(--sub); margin-left: auto; font-size: 9pt; }
+
+  /* diagram page */
+  .wide { page: wide; break-before: page; }
+  .wide h2 { break-before: auto; font-size: 15pt; margin-bottom: 4px; }
+  .wide img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 6px; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 10px 0 14px; }
+  .kpi { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; break-inside: avoid; }
+  .kpi .v { font-size: 15pt; font-weight: 700; color: var(--ink); }
+  .kpi .l { font-size: 8.6pt; color: var(--sub); }
+  .flow { counter-reset: s; list-style: none; padding: 0; }
+  .flow li { counter-increment: s; position: relative; padding: 4px 0 4px 30px; }
+  .flow li::before { content: counter(s); position: absolute; left: 0; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 8.5pt; font-weight: 700; display: grid; place-items: center; }
+  @media screen { body { background: #e9ecef; } main { background: #fff; padding: 32px 48px; margin: 24px auto; box-shadow: 0 2px 12px rgba(0,0,0,.08); } .cover { max-width: 820px; margin: 24px auto 0; height: auto; min-height: 1000px; } .wide { max-width: 1100px; margin: 24px auto; background: #fff; padding: 24px; } h2 { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div>
+    <div class="brand">Cloudworx · Industrial Digital Twin Platform</div>
+    <h1>Frontend Architecture<br>Design Document</h1>
+    <div class="subtitle">Part A · Technical assessment for the Frontend Developer (React) role.<br>This edition covers <b>Surface 1: the Enterprise Procurement Workspace</b>, and the parts of the design that both surfaces share.</div>
+    <div class="scope"><span class="on">Surface 1 · Procurement</span><span class="on">Shared design system</span><span>Surface 2 · 3D workspace (next edition)</span></div>
+  </div>
+  <div class="meta">
+    <b>Prepared by</b><span>[Your name]</span>
+    <b>Version</b><span>0.9 · Surface 1 edition</span>
+    <b>Date</b><span>17 October 2026</span>
+    <b>Deliverables</b><span>A1 architecture diagram (§2) · A2 written explanation (§3–§11)</span>
+  </div>
+</section>
+
+<main>
+
+<h2 style="break-before: page"><span class="num">·</span>Contents</h2>
+<ul class="toc">
+  <li><span class="n">0</span>Summary<span class="d">the decisions on one page</span></li>
+  <li><span class="n">1</span>Context and design drivers<span class="d">from the brief's numbers to design rules</span></li>
+  <li><span class="n">2</span>Architecture overview (Deliverable A1)<span class="d">diagram + protocol on every connection</span></li>
+  <li><span class="n">3</span>Application structure<span class="d">brief item 1</span></li>
+  <li><span class="n">4</span>State and data<span class="d">brief item 2</span></li>
+  <li><span class="n">5</span>Grids and forms<span class="d">brief item 3</span></li>
+  <li><span class="n">6</span>Localisation and accessibility<span class="d">brief item 4</span></li>
+  <li><span class="n">7</span>AI assistant panel<span class="d">brief item 8 · Surface 1 part</span></li>
+  <li><span class="n">8</span>Performance and quality<span class="d">brief item 9</span></li>
+  <li><span class="n">9</span>Decision log and rejected trade-offs<span class="d">A2</span></li>
+  <li><span class="n">10</span>Assumptions<span class="d">A2</span></li>
+  <li><span class="n">11</span>Risks and open questions</li>
+  <li><span class="n">A</span>Appendix: wireframes and glossary</li>
+</ul>
+<div class="note"><b>Scope of this edition.</b> Brief items 1, 2, 3, 4, 8 and 9 are answered here for Surface 1. Items 5 (embedding), 6 (3D editing workspace) and 7 (3D asset optimisation), the 3D part of item 8, and the end-to-end "drag a cabinet" sequence belong to Surface 2 and follow in the next edition, which reuses the shared packages described in §3.</div>
+
+<h2><span class="num">0</span>Summary</h2>
+<p class="lead">Surface 1 is a daily-use enterprise app for buyers, suppliers and approvers in India, Vietnam and China, running on 8 GB laptops over VPN. The design optimises for three things: <b>it must feel fast on a slow network, it must never lose work, and it must work equally well in three languages and without a mouse.</b></p>
+<div class="kpis">
+  <div class="kpi"><div class="v">≤ 2.5 s</div><div class="l">first useful screen on 10 Mbps VPN · budgeted at ~1.9 s</div></div>
+  <div class="kpi"><div class="v">200,000</div><div class="l">rows in a grid, never all in the browser (≤ 2,000 cached)</div></div>
+  <div class="kpi"><div class="v">3 → N</div><div class="l">languages from one build; Arabic later is a translation task</div></div>
+  <div class="kpi"><div class="v">0</div><div class="l">tokens or AI keys held in browser JavaScript</div></div>
+</div>
+<h3>The five decisions that shape everything</h3>
+<table>
+  <tr><th style="width:26%">Decision</th><th>Why</th></tr>
+  <tr><td><b>One Nx monorepo, versioned shared packages</b></td><td>Surface 1 and Surface 2 share tokens, components and i18n through packages published with semantic versions. Each app pins its own versions and deploys alone, so the two products share code but never a release train.</td></tr>
+  <tr><td><b>The server owns the data, the client caches it</b></td><td>TanStack Query is the single client-side copy of server data. REST loads it, the WebSocket keeps it fresh, optimistic updates make it feel instant, and Zustand holds only small UI state.</td></tr>
+  <tr><td><b>Big grids stay on the server</b></td><td>AG Grid's server-side row model asks for 100-row blocks. Filtering, sorting, search and bulk actions all run on the server, so 200,000 rows cost the browser about the same as 2,000.</td></tr>
+  <tr><td><b>Nothing is lost on a flaky VPN</b></td><td>Every form draft is written to IndexedDB immediately and autosaved to the server. Retries use idempotency keys, the WebSocket resumes from its last sequence number, and the UI says clearly when it is offline.</td></tr>
+  <tr><td><b>A thin BFF guards the trust boundary</b></td><td>The backend-for-frontend keeps OIDC tokens and AI keys off the browser (HttpOnly cookie session), merges calls to save VPN round trips, and filters live events per user. A fallback is stated if a BFF is not allowed (§10).</td></tr>
+</table>
+
+<h2><span class="num">1</span>Context and design drivers</h2>
+<p>Each number in the brief becomes a rule the design must satisfy. The rest of the document refers back to these rules.</p>
+<table>
+  <tr><th style="width:30%">From the brief</th><th style="width:32%">What it implies</th><th>Design rule</th></tr>
+  <tr><td>3,000 buyer and supplier users, used all day</td><td>Long sessions, many tabs, repeat visits</td><td>Cache the app shell and translations; keep memory flat over a working day (bounded caches, no leaks)</td></tr>
+  <tr><td>8 GB laptops, integrated graphics, locked-down Chrome/Edge, VPN or VDI</td><td>Weak CPU, no extensions, high latency</td><td>Small initial JavaScript, zero-runtime CSS, no heavy UI framework, fewer round trips (BFF aggregation)</td></tr>
+  <tr><td>Some suppliers on mid-range Android phones</td><td>Narrow screens, mobile data</td><td>Inbox, uploads, onboarding and quote submission are responsive to 360 px; analysis screens are desktop-first</td></tr>
+  <tr><td>Grids of 50,000 suppliers or 200,000 documents</td><td>Too big to download or render</td><td>Server-side filtering, sorting, search and paging; virtualised rows; bulk actions sent as a filter, not an ID list</td></tr>
+  <tr><td>RFQs: 40 line items × 8 suppliers</td><td>Wide, dense, mixed currencies</td><td>Pinned headers, dynamic supplier columns (not fixed at 8), converted currency with the original kept</td></tr>
+  <tr><td>English, Vietnamese, Simplified Chinese from one build; VND, INR, CNY, USD</td><td>Runtime language switch, locale formats</td><td>Lazy translation files per language and screen, <code>Intl</code> for every date, number and amount, flexible layouts</td></tr>
+  <tr><td>WCAG 2.2 AA</td><td>Keyboard and screen-reader access everywhere</td><td>Accessible primitives (React Aria), automated axe checks in CI, scripted keyboard paths for the main flows</td></tr>
+  <tr><td>First useful screen ≤ 2.5 s on 10 Mbps VPN</td><td>Every kilobyte and round trip counts</td><td>A budget per resource, measured in CI on a throttled profile (§8)</td></tr>
+  <tr><td>REST + WebSocket backends (fixed)</td><td>Two channels only</td><td>REST for reads and commands; the WebSocket for live updates <i>and</i> streamed AI replies; no third protocol</td></tr>
+</table>
+
+</main>
+
+<section class="wide">
+  <h2><span class="num">2</span>Architecture overview · Deliverable A1</h2>
+  <p class="small muted" style="margin-bottom:6px">Modules, data flow, the trust boundary and the protocol on every connection. The editable source (<code>diagram-a1-surface1.excalidraw</code>) is open during the review.</p>
+  <img src="diagram-a1-surface1.svg" alt="Surface 1 architecture: users, browser app layers, trust boundary, BFF, domain services, external systems, and the build and release lane">
+</section>
+
+<main>
+<h3 style="margin-top:0">Connections and protocols</h3>
+<table>
+  <tr><th class="k">#</th><th style="width:28%">Connection</th><th style="width:27%">Protocol</th><th>What travels and why</th></tr>
+  <tr><td>①</td><td>User → browser app</td><td>HTTPS (TLS 1.2+) over VPN/VDI</td><td>The app is a single-page app; one build serves all roles and languages</td></tr>
+  <tr><td>②</td><td>Browser → CDN</td><td>HTTPS GET, HTTP/2, <code>immutable</code> cache</td><td>Hashed JS/CSS, locale JSON per language and screen, font subsets, runtime <code>config.json</code></td></tr>
+  <tr><td>③</td><td>Browser ↔ BFF: sign-in</td><td>HTTPS, OIDC redirect, session cookie</td><td>Cookie is <code>HttpOnly; Secure; SameSite=Lax</code>; the browser never sees an access token</td></tr>
+  <tr><td>④</td><td>BFF ↔ identity provider</td><td>HTTPS, OIDC Authorization Code + PKCE</td><td>Code exchange and silent refresh happen server-side; roles and region arrive as claims</td></tr>
+  <tr><td>⑤</td><td>Browser ↔ BFF: data</td><td>HTTPS, REST/JSON</td><td>All reads and commands. Headers: CSRF token, <code>X-Correlation-Id</code>, <code>Accept-Language</code>, <code>If-Match</code> on edits, <code>Idempotency-Key</code> on commands</td></tr>
+  <tr><td>⑥</td><td>Browser ↔ BFF: live</td><td>WSS, JSON <code>{ seq, type, data }</code></td><td>Task, quote, approval and job events, plus AI reply tokens (<code>assistant.delta</code>). Heartbeat, resume from last <code>seq</code></td></tr>
+  <tr><td>⑦</td><td>Browser → object storage</td><td>HTTPS PUT to a pre-signed URL</td><td>Chunked, resumable document uploads that do not pass through the BFF</td></tr>
+  <tr><td>⑧</td><td>BFF ↔ domain services</td><td>HTTPS, REST, mTLS</td><td>The BFF aggregates per screen and forwards the user's identity</td></tr>
+  <tr><td>⑨</td><td>Domain services → BFF</td><td>WSS, the backend's live-update channel</td><td>The BFF subscribes once, filters per user's permissions and adds sequence numbers</td></tr>
+  <tr><td>⑩</td><td>BFF → CMS</td><td>HTTPS, REST (cached)</td><td>Help, country document requirements, announcements and legal text per locale</td></tr>
+  <tr><td>⑪</td><td>Browser → Sentry</td><td>HTTPS</td><td>Errors, traces and Web Vitals, with personal data scrubbed</td></tr>
+  <tr><td>⑫</td><td>AI agent service ↔ LLM provider</td><td>HTTPS, server-side API key</td><td>Model calls only from the backend; no-retention contract assumed</td></tr>
+</table>
+
+<h2><span class="num">3</span>Application structure</h2>
+<p class="lead">How the two surfaces share a design system, tokens and components without sharing one release train, and where the module boundaries are.</p>
+
+<h3>3.1 One repository, separately versioned packages</h3>
+<pre>cloudworx-frontend/                Nx + pnpm workspaces
+├── packages/                      SHARED · published with semantic versions
+│   ├── tokens/        1.4.0       design tokens → CSS variables
+│   ├── ui/            2.3.0       React components (React Aria + CSS Modules)
+│   ├── i18n/          1.1.0       i18next setup, ICU, Intl formatters, locale resolver
+│   └── api-types/     3.0.0       types generated from the OpenAPI specs
+├── apps/                          PRODUCTS · each deployed on its own
+│   ├── procurement/               Surface 1
+│   └── configurator/              Surface 2 (next edition)
+└── tooling/                       shared lint, TypeScript and test configs</pre>
+<p>One repository makes cross-cutting changes (a token and the component that uses it) a single reviewed change. Publishing the packages with versions keeps the <b>releases</b> separate.</p>
+
+<h3>3.2 How sharing works without a shared release train</h3>
+<ol class="flow">
+  <li>A change to <code>packages/ui</code> merges with a <b>changeset</b> describing it as a patch, minor or major change.</li>
+  <li>CI publishes the new version (for example <code>@cloudworx/ui@2.4.0</code>) to the private registry with a changelog.</li>
+  <li>Each app pins the versions it uses. Surface 1 can take 2.4.0 this week while Surface 2 stays on 2.1.0 mid-release; nothing breaks for an app that did not opt in.</li>
+  <li>Nx <code>affected</code> builds, tests and deploys only the apps whose code or pinned versions changed.</li>
+</ol>
+<div class="note">Within the monorepo, apps consume packages through <b>pinned published versions</b>, not live workspace links, in release builds. Developers can link locally to try an unreleased change, but CI builds exactly what will ship.</div>
+
+<h3>3.3 Design tokens in layers</h3>
+<table>
+  <tr><th style="width:18%">Layer</th><th style="width:40%">Example</th><th>Who changes it</th></tr>
+  <tr><td>Primitive</td><td><code>--blue-600: #1971c2</code></td><td>Design system team</td></tr>
+  <tr><td>Brand</td><td><code>--brand-primary: var(--blue-600)</code></td><td>Swapped per brand. Surface 2 maps the host's brand here at runtime</td></tr>
+  <tr><td>Semantic</td><td><code>--color-action</code>, <code>--text-strong</code>, <code>--surface-raised</code></td><td>The only layer components may use</td></tr>
+  <tr><td>Mode</td><td>Light / dark; compact / comfortable density</td><td>Set by an attribute on <code>&lt;html&gt;</code>; grids default to compact</td></tr>
+</table>
+<p>Tokens are authored in Figma (Tokens Studio), exported as JSON and compiled by Style Dictionary into CSS variables and TypeScript constants. Components are styled with <b>CSS Modules</b> (scoped class names, zero runtime) and read only semantic variables, and they use <b>CSS logical properties</b> (<code>margin-inline-start</code>), so a right-to-left language later needs no redesign.</p>
+
+<h3>3.4 Module boundaries</h3>
+<div class="grid2">
+  <div class="card"><h4>Rule 1 · Dependencies point one way</h4><p class="small">Apps → packages → tokens. Packages never import apps; apps never import each other. Enforced by Nx module-boundary lint rules, so the build fails on a violation.</p></div>
+  <div class="card"><h4>Rule 2 · Each module has one front door</h4><p class="small">Every package and feature exports a public <code>index.ts</code>. Deep imports into another module's internals are lint errors.</p></div>
+  <div class="card"><h4>Rule 3 · Shared means generic</h4><p class="small">A component enters <code>packages/ui</code> only when both products need it and it carries no business meaning. The supplier grid, RFQ matrix and approval timeline stay in the Surface 1 app.</p></div>
+  <div class="card"><h4>Rule 4 · Features talk through data, not each other</h4><p class="small">Inside the app, feature modules (Inbox, Suppliers, RFQ…) never import each other. They share state only through the data layer (query keys and events), and navigate through typed routes.</p></div>
+</div>
+<table>
+  <tr><th style="width:25%">Layer inside apps/procurement</th><th>Owns</th></tr>
+  <tr><td><code>app/</code></td><td>Shell, router, providers, runtime config, error boundaries</td></tr>
+  <tr><td><code>features/*</code></td><td>One folder per screen family: components, hooks, routes, translations</td></tr>
+  <tr><td><code>data/</code></td><td>API client, query keys, realtime client, draft store, upload manager, assistant stream</td></tr>
+  <tr><td><code>platform/</code></td><td>Telemetry, accessibility announcer, feature flags, service worker registration</td></tr>
+</table>
+<h4>Rejected</h4>
+<ul class="small">
+  <li><b>Separate repositories per surface and library:</b> cross-cutting changes need several coordinated pull requests, and versions drift unnoticed.</li>
+  <li><b>One app containing both surfaces:</b> this is exactly one release train, and the host would load a bundle full of procurement code.</li>
+  <li><b>Sharing the design system at runtime (Module Federation):</b> fewer bytes, but a library change could break a live app without that app releasing. Pinned versions are safer.</li>
+  <li><b>Copying components into each app:</b> fast at first, but the copies drift and every fix is made twice.</li>
+</ul>
+
+<h2><span class="num">4</span>State and data</h2>
+<p class="lead">Server state and caching, optimistic updates, autosave and drafts on long forms, live updates over WebSocket, and behaviour on a flaky VPN.</p>
+
+<h3>4.1 Four kinds of state, four homes</h3>
+<table>
+  <tr><th style="width:20%">Kind</th><th style="width:34%">Examples</th><th style="width:18%">Lives in</th><th>Why</th></tr>
+  <tr><td>Server state</td><td>Tasks, suppliers, RFQs, quotes, approvals</td><td>TanStack Query</td><td>Caching, deduplication, retries, offline pause and optimistic rollback built in</td></tr>
+  <tr><td>Grid rows</td><td>Blocks of the 50,000 / 200,000-row grids</td><td>AG Grid SSRM cache</td><td>Block cache designed for very large server-side datasets (§5)</td></tr>
+  <tr><td>URL state</td><td>Filters, sort, view, selected task, wizard step</td><td>TanStack Router search params</td><td>Bookmarkable, shareable, survives reloads; typed</td></tr>
+  <tr><td>UI state</td><td>Open panels, row selection, density</td><td>Zustand</td><td>Small, no provider, selective re-renders</td></tr>
+  <tr><td>Drafts</td><td>Unsaved form input</td><td>IndexedDB + server drafts</td><td>Survives tab crashes, VPN drops and device changes</td></tr>
+</table>
+
+<h3>4.2 Server state and caching</h3>
+<ul>
+  <li><b>Query keys mirror the API:</b> <code>['tasks', {status}]</code>, <code>['rfq', id]</code>, <code>['rfq', id, 'quotes']</code>. Invalidating a prefix refreshes everything beneath it.</li>
+  <li><b>Freshness per kind of data:</b> reference data (countries, categories) is fresh for 24 h; lists for 30 s; the open record is always revalidated on focus and reconnect.</li>
+  <li><b>Screen-shaped endpoints:</b> the BFF serves the home page in one call (tasks, counts, recent activity), which saves three VPN round trips on the most important screen.</li>
+  <li><b>Bounded memory:</b> unused queries are garbage-collected after 5 minutes; the persisted cache (inbox and home only, for instant reloads) is cleared at sign-out and never used on shared VDI profiles.</li>
+</ul>
+
+<h3>4.3 Optimistic updates, done safely</h3>
+<pre>Approve task  →  remove it from the cached list immediately          (feels instant)
+              →  POST /tasks/{id}/approve   Idempotency-Key: 7f3c…   If-Match: "v4"
+   200        →  invalidate ['tasks'] and ['rfq', id]                 (resync counts)
+   412/409    →  restore the task, show "Already approved by Wei L." (no silent double action)
+   network    →  restore the task, mark it "Not sent · Retry"</pre>
+<ul>
+  <li><b>Idempotency keys</b> make retries safe: a retried approval cannot approve twice.</li>
+  <li><b>ETags with <code>If-Match</code></b> catch concurrent edits: an approver cannot approve version 3 if the buyer just saved version 4 (wireframe screen 06).</li>
+  <li>Optimism is used only where rollback is cheap and visible: approvals, task actions, comments, saved views. Money-moving or irreversible commands (award, submit onboarding) wait for the server and show progress.</li>
+</ul>
+
+<h3>4.4 Autosave and drafts on long forms</h3>
+<table>
+  <tr><th style="width:24%">When</th><th>What happens</th></tr>
+  <tr><td>Every change</td><td>The draft is written to IndexedDB at once, which is local, fast and survives a crash</td></tr>
+  <tr><td>1.5 s after typing stops, on field blur, on step change</td><td><code>PATCH /drafts/{id}</code> with the draft version; the header shows "Draft saved · 10:42"</td></tr>
+  <tr><td>Offline</td><td>Local writes continue; the indicator shows "Saved on this device · will sync"; the server save retries on reconnect</td></tr>
+  <tr><td>Reopening</td><td>The newer of local and server versions wins. If both changed (two devices), the user picks, with a field-level comparison</td></tr>
+  <tr><td>Resume</td><td>An inbox task "Complete onboarding (step 3 of 6)" deep-links to <code>/onboarding/{draftId}/step/3</code>. Server drafts are kept 30 days</td></tr>
+</table>
+
+<h3>4.5 Live updates over WebSocket</h3>
+<ul>
+  <li><b>One connection per tab</b>, opened after the shell renders and authenticated by the session cookie during the handshake. Screens subscribe to topics (<code>tasks:me</code>, <code>rfq:2041</code>) and unsubscribe when they unmount.</li>
+  <li><b>Every event has a sequence number.</b> On reconnect the client sends its last <code>seq</code>; the BFF replays from a 15-minute buffer. If the gap is larger, the BFF sends <code>resync</code> and the client invalidates the queries of the active screen.</li>
+  <li><b>Events update the cache, never the components directly:</b> small entities via <code>setQueryData</code>, lists via invalidation, grid rows via AG Grid's refresh for the affected block. Handlers are idempotent by <code>seq</code>.</li>
+  <li><b>Calm UI:</b> new inbox items never shift the list under the cursor; a "1 new task" pill lets the user choose when to show them, and the arrival is announced to screen readers.</li>
+  <li><b>Heartbeat</b> every 25 s; reconnect with exponential backoff (1 s → 30 s) plus jitter, so 3,000 clients do not reconnect at the same instant after a VPN gateway restart.</li>
+</ul>
+
+<h3>4.6 Behaviour on a flaky VPN</h3>
+<table>
+  <tr><th style="width:18%">State</th><th style="width:26%">Detected by</th><th>What the user sees and what the app does</th></tr>
+  <tr><td>Online</td><td>Heartbeat OK, requests succeed</td><td>Normal</td></tr>
+  <tr><td>Degraded</td><td>Requests over 3 s, heartbeat late</td><td>Subtle "Slow connection" chip; skeletons instead of spinners; non-urgent prefetching paused</td></tr>
+  <tr><td>Offline</td><td>Heartbeat lost, <code>navigator.onLine</code>, failed requests</td><td>Banner "You're offline. Changes are saved on this device." Cached screens stay readable with "last updated" times. Drafts and comments queue; <b>approvals and awards are disabled</b>, so no decision is made on stale data</td></tr>
+  <tr><td>Reconnected</td><td>Heartbeat resumes</td><td>Queued writes are sent in order with their idempotency keys, the WebSocket resumes from the last <code>seq</code>, and the active screen refetches</td></tr>
+</table>
+
+<h2><span class="num">5</span>Grids and forms</h2>
+<p class="lead">Virtualised grids with saved views, bulk actions and server-side filtering; multi-step forms with validation, autosave and resume.</p>
+
+<h3>5.1 Large grids: suppliers (50,000) and documents (200,000)</h3>
+<p><b>AG Grid Enterprise, server-side row model</b>, themed entirely with our CSS variables so it matches the design system.</p>
+<pre>POST /grids/suppliers/rows
+{ startRow: 200, endRow: 300, sort: [{ col: "certExpiry", dir: "asc" }],
+  filter: { country: ["IN"], certStatus: ["EXPIRING"] }, search: "brake", viewId: "v-81" }
+→ { rows: [ …100 rows… ], rowCount: 1284 }</pre>
+<table>
+  <tr><th style="width:24%">Concern</th><th>Approach</th></tr>
+  <tr><td>Memory</td><td>100-row blocks, at most 20 blocks cached (≤ 2,000 rows), about 30 DOM rows rendered at any time; column virtualisation for wide views</td></tr>
+  <tr><td>Filter, sort, search</td><td>Always on the server, with locale-aware collation and accent-insensitive search ("Ha Noi" finds "Hà Nội"). The query lives in the URL, so a view is bookmarkable</td></tr>
+  <tr><td>Counts</td><td>Exact up to 10,000, then "about 200,000" so the database never counts on every scroll</td></tr>
+  <tr><td>Saved views</td><td>Stored on the server: columns (order, width, pinned, hidden), sort, filters, density. Personal or shared with a team, and a default per role. KPI tiles on the home page open a saved view</td></tr>
+  <tr><td>Bulk actions</td><td>Selection is either a list of IDs or <b>a filter with exclusions</b> ("all 1,284 matching except 2"). The server runs it as a job and returns <code>202 + jobId</code>; progress arrives on the WebSocket; failures are listed and downloadable</td></tr>
+  <tr><td>Export</td><td>A server-side job produces the file; the browser never assembles 200,000 rows</td></tr>
+  <tr><td>Live changes</td><td>Events refresh only the affected block; a row that no longer matches the filter fades out rather than jumping</td></tr>
+  <tr><td>Accessibility</td><td>ARIA grid roles and full keyboard navigation from AG Grid; sort and filter changes and row counts announced; status shown as text, not colour alone</td></tr>
+</table>
+<h4>The RFQ comparison matrix (40 × 8)</h4>
+<p>Small in rows but wide and dense, so it uses the client-side row model: supplier columns are generated from the RFQ data (any number, not fixed at 8), the line-item column and header stay pinned, the lowest price per line is marked with an arrow and text as well as colour, and amounts are converted to the viewer's chosen currency with the original amount and the rate date shown on hover. Above ten suppliers the buyer chooses which to compare side by side.</p>
+
+<h3>5.2 Long multi-step forms: supplier onboarding</h3>
+<table>
+  <tr><th style="width:24%">Concern</th><th>Approach</th></tr>
+  <tr><td>Structure</td><td>The wizard is configuration: each step has fields and a <b>Zod schema</b>. Country-specific rules (for example the Vietnamese tax code length) come from the server, so a new country needs no release</td></tr>
+  <tr><td>Performance</td><td><b>React Hook Form</b> keeps inputs uncontrolled, so a 60-field step does not re-render on every keystroke</td></tr>
+  <tr><td>Validation timing</td><td>On blur first, then on change once a field has an error; the whole step on "Next". The server validates again and returns errors as codes mapped to field paths</td></tr>
+  <tr><td>Autosave and resume</td><td>As in §4.4: local at once, server after 1.5 s idle, resume from the inbox at the exact step</td></tr>
+  <tr><td>Uploads</td><td>Chunked, resumable uploads straight to object storage (connection ⑦); virus-scan status arrives as an event and is shown on the file</td></tr>
+  <tr><td>Submit</td><td>A final review step; submit waits for the server (not optimistic) and carries an idempotency key</td></tr>
+  <tr><td>Accessibility</td><td>Labels on every field, errors linked with <code>aria-describedby</code>, an error summary at the top with links, focus moved to the first error, step changes announced</td></tr>
+  <tr><td>Leaving</td><td>No "unsaved changes" trap is needed because drafts save continuously; leaving simply keeps the draft</td></tr>
+</table>
+
+<h2><span class="num">6</span>Localisation and accessibility</h2>
+<p class="lead">One build in three languages, text expansion, CJK line breaking and locale formats; keyboard and screen-reader paths for the main flows.</p>
+
+<h3>6.1 One build, three languages</h3>
+<table>
+  <tr><th style="width:24%">Part</th><th>Approach</th></tr>
+  <tr><td>Choosing the language</td><td>Saved user profile → browser language → English. Also resolves the user's time zone (Asia/Kolkata, Asia/Ho_Chi_Minh, Asia/Shanghai)</td></tr>
+  <tr><td>Translations</td><td>JSON per language and namespace (<code>common</code>, <code>inbox</code>, <code>suppliers</code>…), ICU message format for plurals and variables, hashed and served from the CDN. Only the active language and open screen are downloaded (5–20 KB each)</td></tr>
+  <tr><td>Switching</td><td>At runtime with no reload: load files, re-render, set <code>&lt;html lang&gt;</code>, switch formatters, save to the profile</td></tr>
+  <tr><td>Safety</td><td>Keys are typed, so a missing key fails the build. Hard-coded strings in components are a lint error. A missing translation falls back to English and is reported to Sentry</td></tr>
+  <tr><td>Server messages</td><td>The API returns error codes, not text; emails and notifications are rendered server-side in the user's saved language</td></tr>
+  <tr><td>Long-form content</td><td>Help, country document requirements and legal text come from a headless CMS per locale (connection ⑩); UI strings stay in the repository where they are typed and tested</td></tr>
+</table>
+
+<h3>6.2 Text expansion, CJK and locale formats</h3>
+<div class="grid2">
+  <div class="card"><h4>Text expansion</h4><p class="small">Vietnamese runs about 30–40% longer than English. Components have no fixed widths; buttons and tabs grow, labels wrap, and grid cells truncate with a tooltip. A pseudo-locale ("[Ŝàvé xxxxx]") in CI screenshots catches overflow and untranslated text.</p></div>
+  <div class="card"><h4>CJK line breaking</h4><p class="small">Chinese has no spaces between words. Under <code>:lang(zh-CN)</code> we set <code>line-break: strict</code> (no line starts with 。or ，), keep <code>word-break: normal</code>, use <code>overflow-wrap: anywhere</code> for long part codes, and never apply fake italics. Noto Sans SC loads only for Chinese users, as a subset with <code>font-display: swap</code>.</p></div>
+</div>
+<table>
+  <tr><th>Same value</th><th>English (India)</th><th>Vietnamese</th><th>Chinese</th></tr>
+  <tr><td>Amount, INR quote</td><td>₹18,40,000.00</td><td>1.840.000,00&nbsp;₹</td><td>₹1,840,000.00</td></tr>
+  <tr><td>Amount, VND quote</td><td>₫1,25,00,00,000</td><td>1.250.000.000&nbsp;₫</td><td>₫1,250,000,000</td></tr>
+  <tr><td>Date</td><td>17 Oct 2026</td><td>17 thg 10, 2026</td><td>2026年10月17日</td></tr>
+  <tr><td>Relative time</td><td>3 days ago</td><td>3 ngày trước</td><td>3天前</td></tr>
+</table>
+<p class="small">Values above are the actual output of the browser's <code>Intl</code> API (summary totals elsewhere drop the decimals). All formatting goes through cached <code>Intl</code> formatters in <code>@cloudworx/i18n</code>. <b>The currency comes from the data and only the style from the locale</b>: a Vietnamese-speaking buyer still sees an Indian quote in rupees. Times are stored in UTC and shown in the viewer's time zone, and RFQ deadlines show the zone explicitly ("18:00 IST").</p>
+
+<h3>6.3 Accessibility approach (WCAG 2.2 AA)</h3>
+<ul>
+  <li><b>Accessible by construction:</b> React Aria provides keyboard, focus and ARIA behaviour for every interactive component; semantic HTML elsewhere.</li>
+  <li><b>Always-visible focus</b>, a "Skip to main content" link, logical tab order, focus moved into dialogs and returned on close, and targets at least 24 × 24 px (WCAG 2.2), with 44 px on mobile.</li>
+  <li><b>One announcer</b> (a shared live region) for asynchronous events: "Draft saved", "New task", "3 suppliers selected", "Approved".</li>
+  <li><b>Never colour alone:</b> statuses carry text or an icon; the lowest price shows "↓" as well as green.</li>
+  <li><b>Tested continuously:</b> axe in component and end-to-end tests fails the build; keyboard paths below are scripted in Playwright; NVDA + Edge (desktop) and TalkBack (Android supplier flows) are checked manually before each release.</li>
+</ul>
+
+<h3>6.4 Keyboard and screen-reader paths for the main flows</h3>
+<p class="small muted">The 3D view's paths are part of the Surface 2 edition.</p>
+<h4>Flow 1 · Approve a task from the inbox (buyer or approver)</h4>
+<table>
+  <tr><th style="width:28%">Keys</th><th>Screen reader says</th></tr>
+  <tr><td>Open inbox</td><td>"Inbox, 12 open tasks, 3 due today."</td></tr>
+  <tr><td><code>Tab</code> into the list, <code>↓</code> / <code>↑</code></td><td>"Approve RFQ-2041, brake pads. Approval, due today. 2 of 12."</td></tr>
+  <tr><td><code>Enter</code></td><td>Detail opens, focus on its heading: "Approve RFQ-2041. Recommended supplier Bharat Brakes, 18 lakh 40 thousand rupees."</td></tr>
+  <tr><td><code>Tab</code> to Comment, type; <code>Tab</code> to Approve, <code>Enter</code></td><td>"Approved. Next task: Submit audit response." Focus moves to the next task.</td></tr>
+</table>
+<h4>Flow 2 · Find suppliers and request documents in bulk (buyer)</h4>
+<table>
+  <tr><th style="width:28%">Keys</th><th>Screen reader says</th></tr>
+  <tr><td><code>Tab</code> to the view menu, <code>Enter</code>, arrows, <code>Enter</code></td><td>"View: Expiring certificates, India. 1,284 suppliers."</td></tr>
+  <tr><td><code>Tab</code> into the grid, arrows between cells</td><td>"Bharat Brakes Limited. Certificate expiry, 5 November 2026. Row 1 of 1,284."</td></tr>
+  <tr><td><code>Space</code> on rows, or "Select all matching"</td><td>"3 selected." / "All 1,284 matching selected."</td></tr>
+  <tr><td><code>Tab</code> to Request documents, <code>Enter</code>, confirm</td><td>"Request sent to 1,284 suppliers. Job running." Later: "Job finished. 1,281 sent, 3 failed."</td></tr>
+</table>
+<h4>Flow 3 · Complete an onboarding step with an error (supplier)</h4>
+<table>
+  <tr><th style="width:28%">Keys</th><th>Screen reader says</th></tr>
+  <tr><td>Open from the inbox task</td><td>"Supplier onboarding, step 3 of 6, Bank details. Draft saved 10:42."</td></tr>
+  <tr><td><code>Tab</code> through fields, type</td><td>"Tax code, required, edit text." On leaving: "Invalid: tax code must be 10 or 13 digits."</td></tr>
+  <tr><td><code>Enter</code> on Next with errors</td><td>Focus moves to the error summary: "1 error. Tax code must be 10 or 13 digits", with a link to the field.</td></tr>
+  <tr><td>Fix, <code>Enter</code> on Next</td><td>"Step 4 of 6, Certificates." Focus on the step heading.</td></tr>
+</table>
+<h4>Flow 4 · Compare quotes and award (buyer)</h4>
+<table>
+  <tr><th style="width:28%">Keys</th><th>Screen reader says</th></tr>
+  <tr><td><code>Tab</code> into the matrix, arrows</td><td>"Front brake pad set, Bharat Brakes, 396 rupees, lowest on this line."</td></tr>
+  <tr><td><code>Ctrl + ↓</code> to the totals row</td><td>"Total, 40 lines. Bharat Brakes, 18 lakh 40 thousand rupees, lowest total."</td></tr>
+  <tr><td><code>Tab</code> to Award, <code>Enter</code>, choose supplier, add reason, confirm</td><td>"Award sent for approval to Wei L. RFQ locked."</td></tr>
+</table>
+
+<h2><span class="num">7</span>AI assistant panel</h2>
+<p class="lead">Streaming replies, context, suggested actions with confirmation, and undo. The 3D "ghost preview" belongs to the Surface 2 edition; the mechanism below is shared.</p>
+<h3>7.1 How a reply streams</h3>
+<pre>1  POST /assistant/messages  { conversationId, text, context }      REST ⑤   → 202 { runId }
+2  WS   assistant.delta  { runId, text: "2 of the 3 " }               WSS ⑥   (many, in order by seq)
+3  WS   assistant.delta  { runId, text: "selected suppliers…" }
+4  WS   assistant.done   { runId, sources: […], proposedAction: {…} }
+   Stop → POST /assistant/runs/{runId}/cancel                          REST ⑤</pre>
+<ul>
+  <li><b>Only REST and the existing WebSocket</b>, the two channels the brief fixes. Reply tokens are just another event type, so reconnect and replay (§4.5) also protect a reply in progress.</li>
+  <li>Tokens render as they arrive; the panel stays usable and can be stopped at any time.</li>
+  <li><b>Accessibility:</b> the finished reply, not each token, goes to the live region; the panel is a labelled complementary region reachable by a shortcut.</li>
+</ul>
+<h3>7.2 Context and safety</h3>
+<ul>
+  <li>The client sends <b>references</b> (screen, filter, selected IDs), never data. The BFF resolves them with the user's own permissions, so the assistant can only see what the user can see.</li>
+  <li>Answers carry <b>sources</b> that link to the records they used.</li>
+  <li>Record content is treated as data, not instructions, so text inside a supplier's document cannot steer the agent.</li>
+  <li>Keys and model calls stay server-side (connection ⑫); the LLM contract is assumed to be no-retention.</li>
+</ul>
+<h3>7.3 Suggested actions: preview, confirm, undo</h3>
+<table>
+  <tr><th style="width:20%">Step</th><th>Behaviour</th></tr>
+  <tr><td>Propose</td><td><code>assistant.done</code> may include a <code>proposedAction</code> (for example "Send a renewal request to 2 suppliers"). The assistant never executes anything itself</td></tr>
+  <tr><td>Preview</td><td>The panel shows exactly what will happen (recipients, message, affected records), using the same components as the manual flow</td></tr>
+  <tr><td>Confirm</td><td>The user's click calls the normal REST command with their own permissions and an idempotency key, exactly as if they had done it by hand</td></tr>
+  <tr><td>Undo</td><td>Reversible actions show "Undo" for 30 s and stay revertible from the activity log; irreversible ones (award) cannot be proposed for one-click confirmation</td></tr>
+</table>
+
+<h2><span class="num">8</span>Performance and quality</h2>
+<p class="lead">How the budget is met, how it is measured in CI, error reporting, and the testing strategy.</p>
+
+<h3>8.1 The 2.5 s budget, line by line</h3>
+<p class="small">Assumptions: 10 Mbps (1.25 MB/s), 150 ms round-trip time over VPN, a mid-range 4-core laptop CPU. "First useful screen" = the role's home with its task list rendered and interactive (a custom <code>first-useful</code> performance mark alongside LCP).</p>
+<table>
+  <tr><th>Step</th><th>Budget</th><th>How</th></tr>
+  <tr><td>DNS + TCP + TLS 1.3</td><td>0.45 s</td><td>3 round trips; one origin for app and BFF (CDN in front of both)</td></tr>
+  <tr><td>HTML</td><td>0.15 s</td><td>2 KB shell; preloads critical JS, CSS, <code>common</code> locale and font; <b>starts the home-data request inline</b></td></tr>
+  <tr><td>Critical resources</td><td>0.35 s</td><td>≤ 170 KB JS + 25 KB CSS + 10 KB locale + 30 KB font subset, compressed (≈ 235 KB → 0.19 s transfer + 1 RTT)</td></tr>
+  <tr><td>Parse and run JS</td><td>0.35 s</td><td>Route-split bundles; grids, charts and the assistant load only when used</td></tr>
+  <tr><td>Home data</td><td>0.40 s</td><td>One aggregated BFF call, in parallel with the steps above (overlaps by ~0.3 s)</td></tr>
+  <tr><td>Render</td><td>0.10 s</td><td>Skeletons first; no layout shift</td></tr>
+  <tr><th>First visit</th><th>≈ 1.9 s</th><th>0.6 s margin for VDI and slow mornings. Repeat visits load the shell from the service worker: ≈ 1.0 s</th></tr>
+</table>
+<table>
+  <tr><th>Other budgets</th><th>Target</th></tr>
+  <tr><td>Interaction to Next Paint (INP)</td><td>&lt; 200 ms at the 75th percentile, including scrolling a 50,000-row grid</td></tr>
+  <tr><td>Route change (cached code)</td><td>&lt; 300 ms to useful content</td></tr>
+  <tr><td>Memory per tab after a working day</td><td>&lt; 400 MB with grids open; flat over time (no growth across 100 navigations)</td></tr>
+  <tr><td>Layout shift (CLS)</td><td>&lt; 0.05, including during language switches</td></tr>
+</table>
+
+<h3>8.2 Measured in CI, and in the field</h3>
+<table>
+  <tr><th style="width:26%">Check</th><th>On every pull request</th></tr>
+  <tr><td>Bundle size limits</td><td><code>size-limit</code> per route entry and per package; over budget fails the build and the report shows what grew</td></tr>
+  <tr><td>Lighthouse CI</td><td>Home, inbox and suppliers in EN, VI and 中文 on a throttled profile (10 Mbps, 150 ms RTT, 4× CPU slowdown); LCP, the <code>first-useful</code> mark and CLS asserted against budgets, median of 3 runs</td></tr>
+  <tr><td>Interaction traces</td><td>Playwright scripts scroll the supplier grid and switch language while recording a performance trace; long tasks over 50 ms are reported</td></tr>
+  <tr><td>Memory soak</td><td>Nightly: 100 navigations and grid scrolls, heap compared before and after</td></tr>
+  <tr><td>Real users</td><td>Web Vitals sent with route, locale and region, so a slow Vietnam VPN or a heavy Chinese font shows up as its own line</td></tr>
+</table>
+
+<h3>8.3 Error reporting</h3>
+<ul>
+  <li><b>Sentry</b> with the release version and privately uploaded source maps; user IDs hashed; form values, tokens and personal fields scrubbed before sending.</li>
+  <li>Every request carries an <code>X-Correlation-Id</code> that also tags the Sentry event, so a user's error links straight to the BFF and service logs.</li>
+  <li>An error boundary per route shows a friendly retry instead of a blank page; WebSocket disconnects, failed autosaves and missing translations are tracked as metrics, with alerts on error rate and slow routes per release.</li>
+</ul>
+
+<h3>8.4 Testing strategy</h3>
+<table>
+  <tr><th style="width:18%">Level</th><th style="width:28%">Tools</th><th>What it covers</th></tr>
+  <tr><td>Unit</td><td>Vitest</td><td>Formatters per locale, Zod schemas, query-key logic, event handlers (idempotent by <code>seq</code>), selection-to-filter conversion</td></tr>
+  <tr><td>Component</td><td>Testing Library, Storybook, axe</td><td>Every <code>@cloudworx/ui</code> component in 3 languages, light/dark and both densities; accessibility checked automatically</td></tr>
+  <tr><td>Contract</td><td>OpenAPI types, MSW</td><td>Mock handlers are generated from the same OpenAPI spec as the types, so mocks cannot drift from the real API</td></tr>
+  <tr><td>End-to-end</td><td>Playwright</td><td>The four main flows (§6.4) by keyboard only, in 3 locales; offline and slow-network emulation; WebSocket drop and resume; concurrent approval conflict</td></tr>
+  <tr><td>Visual</td><td>Playwright screenshots</td><td>Key screens in EN, VI, 中文 and the pseudo-locale, to catch overflow and broken wrapping</td></tr>
+  <tr><td>Manual</td><td>NVDA + Edge, TalkBack</td><td>Screen-reader pass on the main flows before each release</td></tr>
+</table>
+
+<h2><span class="num">9</span>Decision log and rejected trade-offs</h2>
+<table>
+  <tr><th class="k">#</th><th style="width:14%">Area</th><th style="width:24%">Choice</th><th style="width:32%">Why</th><th>Rejected, and why</th></tr>
+  <tr><td>D1</td><td>Repository</td><td>Nx + pnpm monorepo, versioned packages</td><td>Shared code with independent releases; <code>affected</code> builds</td><td>Separate repos (drift); one app for both surfaces (one release train)</td></tr>
+  <tr><td>D2</td><td>Build</td><td>Vite</td><td>Fast, standard, simple configuration</td><td>Webpack / rspack: only needed for Module Federation, which Surface 1 does not use</td></tr>
+  <tr><td>D3</td><td>Rendering</td><td>Client-side SPA, route splitting, service-worker shell</td><td>Behind sign-in, no SEO; a small shell meets 2.5 s</td><td>Next.js / SSR: extra servers and complexity for little gain here</td></tr>
+  <tr><td>D4</td><td>Routing</td><td>TanStack Router</td><td>Typed search params, so filters and views live in the URL</td><td>React Router: good, but untyped search params</td></tr>
+  <tr><td>D5</td><td>Server data</td><td>TanStack Query</td><td>Caching, retries, offline pause, optimistic rollback</td><td>Hand-written fetch (inconsistent); RTK Query (adds Redux); SWR (weaker mutations)</td></tr>
+  <tr><td>D6</td><td>UI state</td><td>Zustand</td><td>Small state, no provider, selective re-renders</td><td>Redux Toolkit (more than the remaining state needs); Context (re-renders)</td></tr>
+  <tr><td>D7</td><td>Live updates</td><td>Native WebSocket client: sequence numbers, resume, backoff with jitter; writes into the cache</td><td>The brief fixes REST + WebSocket</td><td>Socket.IO (protocol is fixed); polling (load and latency)</td></tr>
+  <tr><td>D8</td><td>Large grids</td><td>AG Grid Enterprise, server-side row model</td><td>200k rows, pinning, keyboard and bulk selection built in; fewer moving parts</td><td>TanStack Table + Virtual (we would build server loading, views and accessibility); MUI DataGrid (weaker at this scale)</td></tr>
+  <tr><td>D9</td><td>Forms</td><td>React Hook Form + Zod</td><td>Fast long forms; one schema for client validation and types</td><td>Formik (slower on large forms, less maintained)</td></tr>
+  <tr><td>D10</td><td>API contract</td><td>Types and mocks generated from OpenAPI; thin fetch wrapper</td><td>Frontend and backend cannot drift</td><td>Hand-written types; axios (unneeded weight)</td></tr>
+  <tr><td>D11</td><td>Drafts</td><td>IndexedDB at once + server autosave</td><td>Nothing lost on a drop; resume on any device</td><td>localStorage only (size limit, one device)</td></tr>
+  <tr><td>D12</td><td>UI library</td><td>Own <code>@cloudworx/ui</code>: React Aria + CSS Modules + CSS variables</td><td>Light, accessible, i18n-ready, themeable at runtime</td><td>MUI / Ant Design (heavy, hard to re-theme for a host); runtime CSS-in-JS (cost near large grids); Tailwind (good, but couples app configs)</td></tr>
+  <tr><td>D13</td><td>Languages</td><td>i18next + ICU + <code>Intl</code>, lazy per screen</td><td>One build, plurals, small downloads</td><td>react-intl (more custom work for lazy loading); per-language builds (not one build)</td></tr>
+  <tr><td>D14</td><td>Charts</td><td>Apache ECharts, lazy-loaded on dashboards</td><td>Fast canvas rendering, good CJK support</td><td>Any chart library in the main bundle</td></tr>
+  <tr><td>D15</td><td>AI streaming</td><td>Start/stop over REST; tokens over the existing WebSocket</td><td>Only the two fixed channels; reuses reconnect and replay</td><td>SSE (a third protocol to run and monitor); browser calling the LLM directly (leaks keys and data)</td></tr>
+  <tr><td>D16</td><td>Sign-in</td><td>OIDC via a thin BFF; HttpOnly cookie session</td><td>No tokens in browser JavaScript; fewer VPN round trips</td><td>Tokens in localStorage (XSS); tokens in SPA memory (fallback only, §10)</td></tr>
+  <tr><td>D17</td><td>Testing</td><td>Vitest, Testing Library, Playwright, axe, MSW</td><td>A full pyramid including accessibility and three languages</td><td>Manual-only accessibility and localisation checks</td></tr>
+  <tr><td>D18</td><td>Performance</td><td>Lighthouse CI on a throttled profile, size limits, field Web Vitals</td><td>The budget is checked on every change</td><td>Measuring only before a release</td></tr>
+  <tr><td>D19</td><td>Errors</td><td>Sentry + correlation IDs</td><td>One trace from the user's error to backend logs</td><td>Console logs only</td></tr>
+</table>
+
+<h2><span class="num">10</span>Assumptions</h2>
+<table>
+  <tr><th class="k">#</th><th>Assumption</th><th style="width:36%">If it is wrong</th></tr>
+  <tr><td>A1</td><td>About 2,500 supplier and 500 buyer/approver users; at most ~1,500 online at once</td><td>The WebSocket gateway and BFF scale horizontally; nothing in the client changes</td></tr>
+  <tr><td>A2</td><td>Recent Chrome or Edge on desktop; Chrome on Android for suppliers</td><td>Older browsers would need polyfills for <code>Intl</code> features and logical CSS properties</td></tr>
+  <tr><td>A3</td><td>The backend provides OpenAPI specs, server-side filter/sort/search with locale collation, ETags, idempotency keys, a jobs API, and sequence numbers on WebSocket events</td><td>The BFF adds what is missing (sequence numbers, aggregation); collation would be the hardest gap</td></tr>
+  <tr><td>A4</td><td>Surface 1 signs in through the company's OIDC identity provider</td><td>Any standards-based provider fits the same BFF flow</td></tr>
+  <tr><td>A5</td><td>The frontend team may run a thin BFF</td><td><b>Fallback:</b> SPA with OIDC Authorization Code + PKCE, tokens in memory only, short-lived access tokens with refresh rotation, and per-user event filtering in the backend. Workable, but weaker against XSS and slower on the VPN</td></tr>
+  <tr><td>A6</td><td>Corporate policy allows service workers and IndexedDB</td><td>The app works without them; repeat visits are slower and drafts rely on server autosave only</td></tr>
+  <tr><td>A7</td><td>An AG Grid Enterprise licence is acceptable</td><td>TanStack Table + Virtual with the same server API; roughly 4–6 extra weeks for views, keyboard and accessibility</td></tr>
+  <tr><td>A8</td><td>The VPN gives ~10 Mbps and ~150 ms round trips; WebSockets pass through the VPN and proxies on port 443</td><td>If WebSockets are blocked, the client falls back to refetching the active screen every 30 s and says so</td></tr>
+  <tr><td>A9</td><td>The LLM provider is contracted for no data retention, in an approved region</td><td>The assistant is disabled per region by feature flag</td></tr>
+  <tr><td>A10</td><td>On phones, suppliers need the inbox, onboarding, uploads and quote submission; comparison and bulk grids are desktop-first</td><td>Mobile layouts for grids would be read-only card lists</td></tr>
+</table>
+
+<h2><span class="num">11</span>Risks and open questions</h2>
+<table>
+  <tr><th style="width:30%">Risk</th><th style="width:16%">Likelihood</th><th>Mitigation and early signal</th></tr>
+  <tr><td>Chinese font size hurts first load for zh-CN users</td><td>Medium</td><td>Subset fonts, load after first paint, fall back to Microsoft YaHei; Web Vitals per locale shows it first</td></tr>
+  <tr><td>Server-side collation and accent-insensitive search are not available</td><td>Medium</td><td>Agree the API early; a search index (e.g. OpenSearch with ICU) behind the grid query service</td></tr>
+  <tr><td>BFF becomes a "mini monolith"</td><td>Medium</td><td>Rule: no business logic in the BFF; review checklist; owned by the frontend team with clear limits</td></tr>
+  <tr><td>Translation quality and late strings delay releases</td><td>High</td><td>Pseudo-locale in CI, translation tool synced on every merge, English fallback reported, native reviewers per release</td></tr>
+  <tr><td>VDI sessions with very weak CPUs</td><td>Medium</td><td>4× CPU throttle in CI; reduced-motion and lighter dashboards when <code>hardwareConcurrency</code> is low</td></tr>
+  <tr><td>AG Grid version upgrades</td><td>Low</td><td>Wrapped in one internal adapter so features depend on our grid API, not AG Grid's</td></tr>
+</table>
+<h4>Open questions for the team</h4>
+<ol class="small">
+  <li>Is a frontend-owned BFF acceptable, or must the SPA call an existing API gateway? (§10, A5)</li>
+  <li>Are buyers and suppliers served by one app with role-based screens, or would separate supplier and buyer portals be preferred for security reviews?</li>
+  <li>Which approvals may be pre-filled or proposed by the assistant, and which must always be manual?</li>
+  <li>Is there a data-residency requirement for China that affects the CDN, Sentry or the LLM region?</li>
+</ol>
+
+<h2><span class="num">A</span>Appendix</h2>
+<h3 style="margin-top:0">A.1 Wireframes</h3>
+<p class="small">Eight annotated screens used throughout this document: 01 Home · 02 Task inbox · 03 Suppliers grid · 04 Onboarding (Vietnamese) · 05 RFQ comparison · 06 Approval (Chinese) · 07 AI assistant · 08 Mobile inbox. The editable source is <code>surface-1-procurement.excalidraw</code>.</p>
+<img src="wireframes-surface1.svg" alt="Overview of the eight Surface 1 wireframes" style="width:100%; border:1px solid var(--line); border-radius:6px;">
+
+<h3>A.2 Glossary</h3>
+<table class="small">
+  <tr><th style="width:22%">Term</th><th>Meaning</th></tr>
+  <tr><td>BFF</td><td>Backend-for-frontend: a thin server for one frontend that handles sign-in, aggregation and filtering</td></tr>
+  <tr><td>CJK</td><td>Chinese, Japanese and Korean, languages with special font and line-breaking needs</td></tr>
+  <tr><td>Design token</td><td>A named design value (colour, spacing, font), exposed as a CSS variable</td></tr>
+  <tr><td>ETag / If-Match</td><td>A version stamp on a record, used to reject edits based on an outdated version</td></tr>
+  <tr><td>Idempotency key</td><td>A unique ID on a command so a retry is not executed twice</td></tr>
+  <tr><td>INP / LCP / CLS</td><td>Core Web Vitals: responsiveness, loading of the main content, and visual stability</td></tr>
+  <tr><td>OIDC + PKCE</td><td>OpenID Connect sign-in using the Authorization Code flow with a proof key</td></tr>
+  <tr><td>Optimistic update</td><td>Showing the result of an action before the server confirms it, with rollback on failure</td></tr>
+  <tr><td>SSRM</td><td>AG Grid's server-side row model, which loads rows in blocks on demand</td></tr>
+  <tr><td>Virtualisation</td><td>Rendering only the rows visible on screen</td></tr>
+</table>
+</main>
+</body>
+</html>
