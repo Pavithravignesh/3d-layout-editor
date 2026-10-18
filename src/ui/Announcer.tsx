@@ -4,19 +4,26 @@ import { useFormat } from '../i18n';
 import { useEditor, useViolations } from '../state/editorStore';
 
 /**
- * Polite live region: screen readers hear every edit, undo and redo without focus moving.
- * After an item is placed, moved or turned they also hear where it is and what it is too close to,
+ * Polite live region: screen readers hear every edit, undo and redo without focus moving, plus
+ * notices that are not edits ("Copied 3 items"). After a single item is placed, moved or turned
+ * they also hear where it is and what it is too close to,
  * e.g. "Done: move C-03. Now at 4.5, 2.5 m. Too close to D-07 (0.4 m)."
  */
 export function Announcer() {
   const { t } = useTranslation();
   const fmt = useFormat();
   const last = useEditor((s) => s.lastAction);
+  const notice = useEditor((s) => s.notice);
   const items = useEditor((s) => s.layout.items);
   const violations = useViolations();
 
   let message = '';
-  if (last) {
+  let key = 0;
+  if (notice && (!last || notice.seq > last.seq)) {
+    message = t(`announce.${notice.key}`, { count: notice.count });
+    key = notice.seq;
+  } else if (last) {
+    key = last.seq;
     const { kind, target } = last.command;
     const action = t(`actions.${kind}`, { target });
     message = last.via === 'do' ? t('announce.done', { action }) : t(`announce.${last.via}`, { action });
@@ -38,7 +45,7 @@ export function Announcer() {
   return (
     <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
       {/* The sequence number makes a repeated action announce again. */}
-      <span key={last?.seq}>{message}</span>
+      <span key={key}>{message}</span>
     </div>
   );
 }

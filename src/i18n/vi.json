@@ -24,7 +24,10 @@
     "redo": "Đã làm lại: {{action}}.",
     "position": "Hiện ở {{x}}, {{z}} m.",
     "tooClose": "Quá gần {{other}} ({{gap}} m).",
-    "overlaps": "Chồng lên {{other}}."
+    "overlaps": "Chồng lên {{other}}.",
+    "selected_other": "Đã chọn {{count}} thiết bị.",
+    "copied_other": "Đã sao chép {{count}} thiết bị. Nhấn Ctrl+V để dán.",
+    "clipboardEmpty": "Không có gì để dán. Hãy sao chép thiết bị bằng Ctrl+C trước."
   },
   "list": {
     "position": "{{x}}, {{z}} m",
@@ -40,7 +43,13 @@
     "clear": "Không vướng thiết bị khác",
     "conflicts_other": "{{count}} thiết bị trong phạm vi {{clearance}} m",
     "rotate": "Xoay 90°",
-    "delete": "Xóa"
+    "delete": "Xóa",
+    "groupTitle_other": "Đã chọn {{count}} thiết bị",
+    "groupConflicts_other": "{{count}} vấn đề khoảng cách",
+    "rotateEach": "Xoay từng thiết bị 90°",
+    "copy": "Sao chép",
+    "deleteAll": "Xóa tất cả",
+    "groupHint": "Kéo một thiết bị bất kỳ hoặc dùng phím mũi tên để di chuyển cả nhóm. Ctrl+C và Ctrl+V để sao chép và dán."
   },
   "rules": {
     "minimum": "Khoảng cách tối thiểu giữa các thiết bị là {{clearance}} m.",
@@ -100,6 +109,7 @@
     "placing": "Đang đặt: {{name}}",
     "floor": "Sàn {{w}} m × {{d}} m · lưới {{cell}} m",
     "help": "Kéo để xoay · Kéo chuột phải để di chuyển · Cuộn để thu phóng",
-    "helpSelected": "Phím mũi tên di chuyển 0,5 m (Shift: 1 m) · R để xoay · Delete để xóa · Esc để bỏ chọn"
+    "helpSelected": "Phím mũi tên di chuyển 0,5 m (Shift: 1 m) · R để xoay · Delete để xóa · Ctrl + nhấp để chọn thêm · Esc để bỏ chọn",
+    "helpGroup": "Kéo hoặc dùng phím mũi tên để di chuyển nhóm · R xoay từng thiết bị · Ctrl+C / Ctrl+V sao chép · Delete xóa tất cả"
   }
 }

@@ -56,10 +56,10 @@ export function updateItem(
   return { kind, target: item.label, apply: patch(changes), revert: patch(before) };
 }
 
-/** Several commands as one undo step (e.g. loading a test layout). */
-export function batch(commands: Command[], target: string): Command {
+/** Several commands as one undo step (a group edit, a paste, loading a test layout). */
+export function batch(commands: Command[], target: string, kind: Command['kind'] = 'batch'): Command {
   return {
-    kind: 'batch',
+    kind,
     target,
     apply: (layout) => commands.reduce((l, c) => c.apply(l), layout),
     revert: (layout) => commands.reduceRight((l, c) => c.revert(l), layout),

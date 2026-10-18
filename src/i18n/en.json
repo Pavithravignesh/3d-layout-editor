@@ -24,7 +24,12 @@
     "redo": "Redone: {{action}}.",
     "position": "Now at {{x}}, {{z}} m.",
     "tooClose": "Too close to {{other}} ({{gap}} m).",
-    "overlaps": "Overlaps {{other}}."
+    "overlaps": "Overlaps {{other}}.",
+    "selected_one": "{{count}} item selected.",
+    "selected_other": "{{count}} items selected.",
+    "copied_one": "Copied {{count}} item. Press Ctrl+V to paste.",
+    "copied_other": "Copied {{count}} items. Press Ctrl+V to paste.",
+    "clipboardEmpty": "Nothing to paste. Copy items with Ctrl+C first."
   },
   "list": {
     "position": "{{x}}, {{z}} m",
@@ -41,7 +46,15 @@
     "conflicts_one": "{{count}} item within {{clearance}} m",
     "conflicts_other": "{{count}} items within {{clearance}} m",
     "rotate": "Rotate 90°",
-    "delete": "Delete"
+    "delete": "Delete",
+    "groupTitle_one": "{{count}} item selected",
+    "groupTitle_other": "{{count}} items selected",
+    "groupConflicts_one": "{{count}} clearance issue",
+    "groupConflicts_other": "{{count}} clearance issues",
+    "rotateEach": "Rotate each 90°",
+    "copy": "Copy",
+    "deleteAll": "Delete all",
+    "groupHint": "Drag any of them, or use the arrow keys, to move the group. Ctrl+C and Ctrl+V copy and paste."
   },
   "rules": {
     "minimum": "Minimum clearance between items is {{clearance}} m.",
@@ -103,6 +116,7 @@
     "placing": "Placing: {{name}}",
     "floor": "Floor {{w}} m × {{d}} m · {{cell}} m grid",
     "help": "Drag to orbit · Right-drag to pan · Scroll to zoom",
-    "helpSelected": "Arrow keys move 0.5 m (Shift: 1 m) · R rotates · Delete removes · Esc deselects"
+    "helpSelected": "Arrow keys move 0.5 m (Shift: 1 m) · R rotates · Delete removes · Ctrl-click adds items · Esc deselects",
+    "helpGroup": "Drag or arrow keys move the group · R rotates each · Ctrl+C / Ctrl+V copy · Delete removes all"
   }
 }

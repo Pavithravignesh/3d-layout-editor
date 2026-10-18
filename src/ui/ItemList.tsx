@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
+import { memo, useEffect, useMemo, useRef, type KeyboardEvent, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '../design-system/Panel';
 import { Icon } from '../design-system/Icon';
@@ -15,7 +15,9 @@ export function ItemList() {
   const { t } = useTranslation();
   const items = useEditor((s) => s.layout.items);
   const selectedId = useEditor((s) => s.selectedId);
+  const selectedIds = useEditor((s) => s.selectedIds);
   const select = useEditor((s) => s.select);
+  const selected = useMemo(() => new Set(selectedIds), [selectedIds]);
   const violations = useViolations();
   const violating = useMemo(() => violatingIds(violations), [violations]);
   const listRef = useRef<HTMLUListElement>(null);
@@ -46,19 +48,27 @@ export function ItemList() {
         <Row
           key={item.id}
           item={item}
-          selected={item.id === selectedId}
+          selected={selected.has(item.id)}
+          primary={item.id === selectedId}
           focusable={index === focusIndex}
           warning={violating.has(item.id)}
-          onSelect={select}
         />
       ))}
     </ul>
   );
 }
 
-type RowProps = { item: Item; selected: boolean; focusable: boolean; warning: boolean; onSelect(id: string): void };
+/** Click selects one item; Ctrl/Cmd-click adds or removes it; Shift-click selects a range. */
+function onRowClick(id: string, e: MouseEvent) {
+  const editor = useEditor.getState();
+  if (e.ctrlKey || e.metaKey) editor.toggleSelect(id);
+  else if (e.shiftKey) editor.selectRange(id);
+  else editor.select(id);
+}
 
-const Row = memo(function Row({ item, selected, focusable, warning, onSelect }: RowProps) {
+type RowProps = { item: Item; selected: boolean; primary: boolean; focusable: boolean; warning: boolean };
+
+const Row = memo(function Row({ item, selected, primary, focusable, warning }: RowProps) {
   const { t } = useTranslation();
   const fmt = useFormat();
   const corner = useMemo(() => bounds(item), [item]);
@@ -67,9 +77,10 @@ const Row = memo(function Row({ item, selected, focusable, warning, onSelect }: 
       <button
         type="button"
         className={styles.button}
-        aria-current={selected || undefined}
+        aria-pressed={selected}
+        aria-current={primary || undefined}
         tabIndex={focusable ? 0 : -1}
-        onClick={() => onSelect(item.id)}
+        onClick={(e) => onRowClick(item.id, e)}
       >
         <span className={styles.swatch} style={{ background: getItemType(item.type).color }} aria-hidden="true" />
         <span className={styles.label}>{item.label}</span>

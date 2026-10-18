@@ -42,9 +42,11 @@ They are slower than the native tools and are not needed on a normal machine.
 | --- | --- |
 | Place an item | Choose it under **Equipment**, then click the floor. **Shift**-click to place several; **Esc** cancels |
 | Select | Click an item in 3D or in **Placed items**; the selection is shared |
-| Move | Drag the item; it snaps to the 0.5 m grid. Or press the **arrow keys** to move the selected item one cell (0.5 m), **Shift + arrow** for 1 m. Or type a position in **Properties** |
-| Rotate | **R**, the **Rotate 90°** button, or the rotation field |
-| Delete | **Delete** or the **Delete** button |
+| Select several | **Ctrl**-click (or **Shift**-click in 3D) to add or remove items; **Shift**-click in the list selects a range; **Ctrl+A** selects all |
+| Move | Drag the item; it snaps to the 0.5 m grid. Or press the **arrow keys** to move the selection one cell (0.5 m), **Shift + arrow** for 1 m. Or type a position in **Properties**. A selected group moves together and stops as a unit at the floor's edge |
+| Rotate | **R**, the **Rotate 90°** button, or the rotation field; with several selected, each item turns in place |
+| Delete | **Delete** or the **Delete** button; removes the whole selection |
+| Copy and paste | **Ctrl+C**, **Ctrl+X**, **Ctrl+V**. Pasted copies land one cell down-right (repeated pastes cascade), get the next labels and become the selection |
 | Undo / redo | **Ctrl+Z** / **Ctrl+Y** (or **Ctrl+Shift+Z**). The toolbar tooltip names the step, e.g. "Undo move D-01" |
 | Browse the list | Tab into **Placed items**, then ↑ / ↓ / Home / End |
 | Camera | Drag to orbit, right-drag to pan, scroll to zoom |
@@ -62,13 +64,21 @@ They are slower than the native tools and are not needed on a normal machine.
 | Items closer than 0.6 m highlighted, with a message naming both | Edge-to-edge distance between footprints. Items turn red in 3D and in the list, and the **Rule check** panel says, for example, "C-01 and D-01 are 0.54 m apart". The check also runs live while dragging and while placing |
 | Bill of materials with English / Vietnamese | Counted from the scene; the whole interface switches language |
 
+**Plus items built**
+
+| Plus item | Implementation |
+| --- | --- |
+| Editing depth: multi-select, copy and paste | Selection is a list with a primary item. Group move, rotate, delete, cut and paste are each **one batch command**, so a single Ctrl+Z reverts them. Moves are clamped for the group as a whole. The properties panel shows the group's make-up, clearance issues and group actions |
+| Keyboard editing | Select (list and Ctrl+A), move one cell (arrow keys), delete and every other edit from the keyboard, with screen-reader announcements of the result |
+
 ## How it is built
 
 ```
 src/
 ├── domain/          Pure TypeScript, no React or three.js: catalogue, geometry and snapping,
-│                    commands and undo history, clearance rule, bill of materials (unit-tested)
-├── state/           Zustand store: the layout document, selection and placing mode
+│                    commands and undo history, clearance rule, group moves and paste,
+│                    bill of materials (unit-tested)
+├── state/           Zustand store: the layout document, selection, clipboard and placing mode
 ├── scene/           React Three Fiber: floor, instanced items, selection marker, placement preview
 ├── ui/              Panels: palette, item list, properties, rule check, bill of materials, top bar
 ├── design-system/   Design tokens (CSS variables), Button, Panel, Icon
@@ -106,14 +116,14 @@ How to measure: run `npm run build && npm run preview`, open the app full-screen
 npm test
 ```
 
-30 unit tests cover snapping and rotation, the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), keyboard nudging (one cell per step, nothing recorded at the floor's edge), labels and the bill of materials.
+44 unit tests cover snapping and rotation, the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), keyboard nudging (one cell per step, nothing recorded at the floor's edge), multi-select (toggle, range, select all), group moves clamped as a unit, group delete and its undo, copy, cut and cascading paste, labels and the bill of materials.
 
 ## Trade-offs and next steps
 
 - **Overlaps are allowed but flagged**, rather than blocked: blocking would make dense layouts frustrating to edit, and the rule panel already makes every conflict visible.
 - **The violation list shows the closest 50** with a count of the rest; a 500-item random layout produces thousands of pairs, and listing them all would add nothing.
 - **Rotation is in 90° steps** so footprints stay aligned with the grid.
-- Natural next steps: optimised glTF models with instancing, multi-select, a 2D plan view, embedding in a host page over `postMessage`, and an assistant that proposes layout fixes as a preview.
+- Natural next steps: optimised glTF models with instancing, align and distribute, a 2D plan view, box selection, embedding in a host page over `postMessage`, and an assistant that proposes layout fixes as a preview.
 
 ## Use of AI tools
 

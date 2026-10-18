@@ -506,6 +506,7 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
   <li><b>Move:</b> items move on the floor plane (equipment does not float), with pointer capture so a fast drag never "drops" the item. The drag preview lives in local state; <b>one command is committed on release</b>.</li>
   <li><b>Rotate:</b> 90° steps (<code>R</code>), re-snapped so the turned footprint stays on the grid and on the floor.</li>
   <li><b>Properties:</b> position (as the north-west corner, always a clean grid value), rotation and label; edits commit on Enter or blur, one undo step each.</li>
+  <li><b>Multi-select, copy and paste:</b> the selection is a list with a primary item (Ctrl/Shift-click, list ranges, Ctrl+A). Group move, rotate, delete, cut and paste are each <b>one batch command</b>; moves are clamped for the group as a whole, so a group stops at a wall instead of being squashed against it. Pasted copies get the next labels and become the selection.</li>
   <li><b>Keyboard:</b> list navigation, <code>R</code>, <code>Delete</code>, <code>Ctrl+Z/Y</code>; arrow keys nudge one cell (§6.4).</li>
 </ul>
 <h3>8.3 Snapping to the grid</h3>
@@ -655,7 +656,7 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 <h3>11.6 Testing strategy</h3>
 <table>
   <tr><th style="width:15%">Level</th><th style="width:24%">Tools</th><th>What it covers</th></tr>
-  <tr><td>Unit</td><td>Vitest</td><td>Formatters per locale, Zod schemas, event handlers; in Surface 2 the whole domain: snapping, rules (checked against brute force), commands, history, BOM, keyboard nudging (Part B: 30 tests)</td></tr>
+  <tr><td>Unit</td><td>Vitest</td><td>Formatters per locale, Zod schemas, event handlers; in Surface 2 the whole domain: snapping, rules (checked against brute force), commands, history, BOM, keyboard nudging, group edits, copy and paste (Part B: 44 tests)</td></tr>
   <tr><td>Component</td><td>Testing Library, Storybook, axe</td><td>Every shared component in 3 languages, light/dark and both densities</td></tr>
   <tr><td>Contract</td><td>OpenAPI types, MSW, zod</td><td>API mocks generated from the spec; the host contract tested against a test host page</td></tr>
   <tr><td>End-to-end</td><td>Playwright</td><td>The five main flows by keyboard in 3 locales; offline and slow networks; WebSocket resume; concurrent approval; the editor embedded in the test host with token refresh</td></tr>
@@ -764,7 +765,7 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 <table>
   <tr><th style="width:34%">Section</th><th>Where it is in Part B</th></tr>
   <tr><td>§8.1 Scene · §9.4 instancing</td><td><code>src/scene/</code>: floor, <code>ItemsLayer</code> (one InstancedMesh per part per type), non-raycast overlays, placement ghost</td></tr>
-  <tr><td>§8.3 Snapping · §8.4 commands · §8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash); 30 unit tests in total</td></tr>
+  <tr><td>§8.3 Snapping · §8.4 commands · §8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash), <code>group.ts</code> (group moves, paste); 44 unit tests in total</td></tr>
   <tr><td>§8.6 Sync</td><td><code>src/state/editorStore.ts</code>: one store read by the 3D view, list, properties and rule panel</td></tr>
   <tr><td>§3.3 Tokens and components</td><td><code>src/design-system/</code>: a small version of <code>@cloudworx/ui</code></td></tr>
   <tr><td>§6 Localisation and accessibility</td><td>EN/VI with <code>Intl</code> numbers; list as one Tab stop with arrow keys; live region for edits, undo and redo</td></tr>

@@ -1,7 +1,7 @@
 import { Edges, Html, Line } from '@react-three/drei';
 import { getItemType, type ItemTypeId } from '../domain/catalog';
 import { CLEARANCE } from '../domain/floor';
-import { footprint } from '../domain/geometry';
+import { bounds, footprint } from '../domain/geometry';
 import type { Rotation } from '../domain/types';
 import { degToRad, toWorld } from './coords';
 import { PART_GEOMETRIES } from './itemParts';
@@ -54,6 +54,21 @@ export function SelectionMarker({ item, label, warning }: { item: Placed; label:
       <Html position={[0, h + 0.35, 0]} center zIndexRange={[10, 0]} className={styles.anchor}>
         <span className={[styles.label, warning && styles.warning].filter(Boolean).join(' ')}>{label}</span>
       </Html>
+    </group>
+  );
+}
+
+/** Dashed outline around a multi-item selection, so the group reads as one thing. */
+export function GroupOutline({ items }: { items: readonly Placed[] }) {
+  const boxes = items.map((i) => bounds(i));
+  const minX = Math.min(...boxes.map((b) => b.minX)) - 0.15;
+  const maxX = Math.max(...boxes.map((b) => b.maxX)) + 0.15;
+  const minZ = Math.min(...boxes.map((b) => b.minZ)) - 0.15;
+  const maxZ = Math.max(...boxes.map((b) => b.maxZ)) + 0.15;
+  const [x, z] = toWorld((minX + maxX) / 2, (minZ + maxZ) / 2);
+  return (
+    <group position={[x, 0, z]}>
+      <FloorRect w={maxX - minX} d={maxZ - minZ} inset={0} color={ACCENT} dashed />
     </group>
   );
 }

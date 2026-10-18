@@ -2,16 +2,18 @@ import { Bounds } from '@react-three/drei';
 import { useThree, type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { CLEARANCE } from '../domain/floor';
-import { bounds, gapBetween, snapToGrid } from '../domain/geometry';
+import { bounds, gapBetween, round, snapToGrid } from '../domain/geometry';
+import { clampGroupDelta } from '../domain/group';
 import { findViolations, violatingIds } from '../domain/rules';
 import type { Item, Rotation } from '../domain/types';
 import { useEditor, useViolations } from '../state/editorStore';
 import { floorPointFromRay } from './coords';
 import { Floor } from './Floor';
 import { ItemsLayer } from './ItemsLayer';
-import { PlacementGhost, SelectionMarker } from './Markers';
+import { GroupOutline, PlacementGhost, SelectionMarker } from './Markers';
 
-type Drag = { id: string; x: number; z: number; offsetX: number; offsetZ: number };
+/** A drag moves every item in `ids` by the same snapped, clamped delta from where it started. */
+type Drag = { anchor: Item; ids: ReadonlySet<string>; offsetX: number; offsetZ: number; dx: number; dz: number };
 type ControlsLike = { enabled: boolean } | null;
 
 const CLICK_TOLERANCE_PX = 4;
@@ -22,9 +24,10 @@ const CLICK_TOLERANCE_PX = 4;
  */
 export function SceneContent() {
   const items = useEditor((s) => s.layout.items);
+  const selectedIds = useEditor((s) => s.selectedIds);
   const selectedId = useEditor((s) => s.selectedId);
   const placing = useEditor((s) => s.placing);
-  const { select, place, move, startPlacing } = useEditor.getState();
+  const { select, toggleSelect, place, moveSelection, startPlacing } = useEditor.getState();
   const committedViolations = useViolations();
   const gl = useThree((s) => s.gl);
   const controls = useThree((s) => s.controls) as unknown as ControlsLike;
@@ -32,14 +35,15 @@ export function SceneContent() {
   const [drag, setDrag] = useState<Drag | null>(null);
   const [hover, setHover] = useState<{ x: number; z: number } | null>(null);
 
-  const displayItems = useMemo(
-    () => (drag ? items.map((i) => (i.id === drag.id ? { ...i, x: drag.x, z: drag.z } : i)) : items),
-    [items, drag],
-  );
-  // While dragging, the rule runs on the preview position so conflicts show before release.
+  const selected = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const displayItems = useMemo(() => {
+    if (!drag || (drag.dx === 0 && drag.dz === 0)) return items;
+    return items.map((i) => (drag.ids.has(i.id) ? { ...i, x: round(i.x + drag.dx), z: round(i.z + drag.dz) } : i));
+  }, [items, drag]);
+  // While dragging, the rule runs on the preview positions so conflicts show before release.
   const violations = useMemo(
-    () => (drag ? findViolations(displayItems) : committedViolations),
-    [drag, displayItems, committedViolations],
+    () => (displayItems !== items ? findViolations(displayItems) : committedViolations),
+    [displayItems, items, committedViolations],
   );
   const violating = useMemo(() => violatingIds(violations), [violations]);
 
@@ -53,7 +57,8 @@ export function SceneContent() {
     return displayItems.some((i) => gapBetween(bounds(i), box) < CLEARANCE);
   }, [ghost, displayItems]);
 
-  const selected = displayItems.find((i) => i.id === selectedId) ?? null;
+  const primary = displayItems.find((i) => i.id === selectedId) ?? null;
+  const group = useMemo(() => (selected.size > 1 ? displayItems.filter((i) => selected.has(i.id)) : []), [displayItems, selected]);
 
   useEffect(() => {
     gl.domElement.style.cursor = drag ? 'grabbing' : placing ? 'crosshair' : '';
@@ -66,22 +71,31 @@ export function SceneContent() {
   const onItemPointerDown = (item: Item, e: ThreeEvent<PointerEvent>) => {
     if (placing || e.button !== 0) return;
     e.stopPropagation();
-    select(item.id);
+    const native = e.nativeEvent;
+    if (native.ctrlKey || native.metaKey || native.shiftKey) {
+      toggleSelect(item.id);
+      return;
+    }
+    // Pressing on an item that is already part of the selection drags the whole group.
+    const ids = selected.has(item.id) ? new Set(selectedIds) : new Set([item.id]);
+    if (!selected.has(item.id)) select(item.id);
     const point = floorPointFromRay(e.ray);
     if (!point) return;
     (e.target as unknown as Element).setPointerCapture(e.pointerId);
     if (controls) controls.enabled = false;
-    setDrag({ id: item.id, x: item.x, z: item.z, offsetX: item.x - point.x, offsetZ: item.z - point.z });
+    setDrag({ anchor: item, ids, offsetX: item.x - point.x, offsetZ: item.z - point.z, dx: 0, dz: 0 });
   };
 
   const onItemPointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!drag) return;
     e.stopPropagation();
     const point = floorPointFromRay(e.ray);
-    const item = items.find((i) => i.id === drag.id);
-    if (!point || !item) return;
-    const next = snapToGrid(item.type, item.rotation, point.x + drag.offsetX, point.z + drag.offsetZ);
-    if (next.x !== drag.x || next.z !== drag.z) setDrag({ ...drag, ...next });
+    if (!point) return;
+    const { anchor } = drag;
+    const target = snapToGrid(anchor.type, anchor.rotation, point.x + drag.offsetX, point.z + drag.offsetZ);
+    const moving = items.filter((i) => drag.ids.has(i.id));
+    const next = clampGroupDelta(moving, target.x - anchor.x, target.z - anchor.z);
+    if (next.dx !== drag.dx || next.dz !== drag.dz) setDrag({ ...drag, ...next });
   };
 
   const onItemPointerUp = (e: ThreeEvent<PointerEvent>) => {
@@ -89,7 +103,7 @@ export function SceneContent() {
     e.stopPropagation();
     (e.target as unknown as Element).releasePointerCapture(e.pointerId);
     if (controls) controls.enabled = true;
-    move(drag.id, drag.x, drag.z);
+    moveSelection(drag.dx, drag.dz);
     setDrag(null);
   };
 
@@ -122,11 +136,13 @@ export function SceneContent() {
       <ItemsLayer
         items={displayItems}
         violating={violating}
+        selected={selected}
         onItemPointerDown={onItemPointerDown}
         onItemPointerMove={onItemPointerMove}
         onItemPointerUp={onItemPointerUp}
       />
-      {selected && <SelectionMarker item={selected} label={selected.label} warning={violating.has(selected.id)} />}
+      {group.length > 1 && <GroupOutline items={group} />}
+      {primary && <SelectionMarker item={primary} label={primary.label} warning={violating.has(primary.id)} />}
       {ghost && <PlacementGhost item={ghost} conflict={ghostConflict} />}
     </>
   );

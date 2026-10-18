@@ -2,9 +2,11 @@ import { useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../design-system/Button';
 import { EmptyState } from '../design-system/Panel';
+import { billOfMaterials } from '../domain/bom';
 import { getItemType } from '../domain/catalog';
 import { CLEARANCE } from '../domain/floor';
 import { bounds, footprint } from '../domain/geometry';
+import { describeGroup } from '../domain/group';
 import type { Item, Rotation } from '../domain/types';
 import { useFormat } from '../i18n';
 import { useEditor, useSelectedItem, useViolations } from '../state/editorStore';
@@ -12,13 +14,72 @@ import styles from './PropertiesPanel.module.css';
 
 const ROTATIONS: Rotation[] = [0, 90, 180, 270];
 
-/** Edits the selected item. Every change is an undoable command, exactly like an edit in 3D. */
+/** Edits the selection. Every change is an undoable command, exactly like an edit in 3D. */
 export function PropertiesPanel() {
   const { t } = useTranslation();
   const item = useSelectedItem();
+  const count = useEditor((s) => s.selectedIds.length);
+  if (count > 1) return <GroupProperties />;
   if (!item) return <EmptyState title={t('empty.properties')} hint={t('empty.propertiesHint')} />;
   // Keyed by id so field drafts reset when the selection changes.
   return <ItemProperties key={item.id} item={item} />;
+}
+
+/** Several items selected: what is in the group, and the edits that apply to all of them. */
+function GroupProperties() {
+  const { t } = useTranslation();
+  const fmt = useFormat();
+  const items = useEditor((s) => s.layout.items);
+  const selectedIds = useEditor((s) => s.selectedIds);
+  const { rotateSelection, copySelection, removeSelection } = useEditor.getState();
+  const ids = new Set(selectedIds);
+  const group = items.filter((i) => ids.has(i.id));
+  const lines = billOfMaterials(group);
+  const conflicts = useViolations().filter((v) => ids.has(v.a.id) || ids.has(v.b.id)).length;
+
+  return (
+    <div className={styles.body}>
+      <div className={styles.heading}>
+        <span className={styles.groupBadge} aria-hidden="true">
+          {fmt.number(group.length, 0)}
+        </span>
+        <div>
+          <p className={styles.title}>{t('props.groupTitle', { count: group.length })}</p>
+          <p className={styles.subtitle}>{describeGroup(group)}</p>
+        </div>
+      </div>
+
+      <dl className={styles.facts}>
+        {lines.map((line) => (
+          <div key={line.type} className={styles.factRow}>
+            <dt>{t(`items.${line.type}`)}</dt>
+            <dd>{fmt.number(line.quantity, 0)}</dd>
+          </div>
+        ))}
+        <div className={styles.factRow}>
+          <dt>{t('props.status')}</dt>
+          <dd className={conflicts ? styles.bad : styles.good}>
+            {conflicts
+              ? t('props.groupConflicts', { count: conflicts, clearance: fmt.number(CLEARANCE) })
+              : t('props.clear')}
+          </dd>
+        </div>
+      </dl>
+
+      <div className={styles.actions}>
+        <Button icon="rotate" onClick={rotateSelection}>
+          {t('props.rotateEach')}
+        </Button>
+        <Button icon="copy" onClick={copySelection}>
+          {t('props.copy')}
+        </Button>
+        <Button icon="trash" variant="danger" onClick={removeSelection}>
+          {t('props.deleteAll')}
+        </Button>
+      </div>
+      <p className={styles.hint}>{t('props.groupHint')}</p>
+    </div>
+  );
 }
 
 function ItemProperties({ item }: { item: Item }) {

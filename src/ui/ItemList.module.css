@@ -28,8 +28,12 @@
   background: var(--surface-hover);
 }
 
-.button[aria-current='true'] {
+.button[aria-pressed='true'] {
   background: var(--surface-selected);
+}
+
+/* The primary item of the selection (shown in Properties) also gets the outline. */
+.button[aria-current='true'] {
   border-color: var(--color-action);
 }
 

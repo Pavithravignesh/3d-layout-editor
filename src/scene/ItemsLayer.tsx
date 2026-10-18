@@ -9,17 +9,20 @@ import { PART_GEOMETRIES } from './itemParts';
 const VIOLATION = new Color('#e03131');
 const PLINTH_COLOR = new Color('#3b4250');
 const FRONT_TINT = new Color('#ffffff');
+const VIOLATION_FRONT = VIOLATION.clone().lerp(FRONT_TINT, 0.35);
+const SELECTED = new Color('#1971c2');
 
 type ItemsLayerProps = {
   items: readonly Item[];
   violating: ReadonlySet<string>;
+  selected: ReadonlySet<string>;
   onItemPointerDown(item: Item, event: ThreeEvent<PointerEvent>): void;
   onItemPointerMove(event: ThreeEvent<PointerEvent>): void;
   onItemPointerUp(event: ThreeEvent<PointerEvent>): void;
 };
 
 /** All placed items, drawn with one instanced mesh per part per type. */
-export function ItemsLayer({ items, violating, ...handlers }: ItemsLayerProps) {
+export function ItemsLayer({ items, violating, selected, ...handlers }: ItemsLayerProps) {
   const byType = useMemo(() => {
     const groups = new Map<string, Item[]>(CATALOG.map((t) => [t.id, []]));
     for (const item of items) groups.get(item.type)!.push(item);
@@ -29,7 +32,14 @@ export function ItemsLayer({ items, violating, ...handlers }: ItemsLayerProps) {
   return (
     <>
       {CATALOG.map((type) => (
-        <TypeInstances key={type.id} type={type} items={byType.get(type.id)!} violating={violating} {...handlers} />
+        <TypeInstances
+          key={type.id}
+          type={type}
+          items={byType.get(type.id)!}
+          violating={violating}
+          selected={selected}
+          {...handlers}
+        />
       ))}
     </>
   );
@@ -37,7 +47,15 @@ export function ItemsLayer({ items, violating, ...handlers }: ItemsLayerProps) {
 
 type TypeInstancesProps = Omit<ItemsLayerProps, 'items'> & { type: ItemType; items: Item[] };
 
-function TypeInstances({ type, items, violating, onItemPointerDown, onItemPointerMove, onItemPointerUp }: TypeInstancesProps) {
+function TypeInstances({
+  type,
+  items,
+  violating,
+  selected,
+  onItemPointerDown,
+  onItemPointerMove,
+  onItemPointerUp,
+}: TypeInstancesProps) {
   const body = useRef<InstancedMesh>(null);
   const plinth = useRef<InstancedMesh>(null);
   const front = useRef<InstancedMesh>(null);
@@ -47,6 +65,7 @@ function TypeInstances({ type, items, violating, onItemPointerDown, onItemPointe
   const capacity = Math.max(16, 2 ** Math.ceil(Math.log2(Math.max(items.length, 1))));
   const baseColor = useMemo(() => new Color(type.color), [type.color]);
   const frontColor = useMemo(() => new Color(type.color).lerp(FRONT_TINT, 0.35), [type.color]);
+  const selectedColor = useMemo(() => new Color(type.color).lerp(SELECTED, 0.45), [type.color]);
 
   useLayoutEffect(() => {
     const matrix = new Matrix4();
@@ -68,10 +87,12 @@ function TypeInstances({ type, items, violating, onItemPointerDown, onItemPointe
       rotation.setFromAxisAngle(up, -degToRad(item.rotation));
       matrix.compose(position, rotation, scale);
       for (const mesh of meshes) mesh?.setMatrixAt(i, matrix);
+      // A violation always shows; selection tints the body and lights the plinth in the accent colour.
       const bad = violating.has(item.id);
-      body.current?.setColorAt(i, bad ? VIOLATION : baseColor);
-      front.current?.setColorAt(i, bad ? VIOLATION.clone().lerp(FRONT_TINT, 0.35) : frontColor);
-      plinth.current?.setColorAt(i, PLINTH_COLOR);
+      const isSelected = selected.has(item.id);
+      body.current?.setColorAt(i, bad ? VIOLATION : isSelected ? selectedColor : baseColor);
+      front.current?.setColorAt(i, bad ? VIOLATION_FRONT : frontColor);
+      plinth.current?.setColorAt(i, isSelected ? SELECTED : PLINTH_COLOR);
     });
     for (const mesh of meshes) {
       if (!mesh) continue;
@@ -80,7 +101,7 @@ function TypeInstances({ type, items, violating, onItemPointerDown, onItemPointe
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
       mesh.computeBoundingSphere();
     }
-  }, [items, violating, baseColor, frontColor, capacity]);
+  }, [items, violating, selected, baseColor, frontColor, selectedColor, capacity]);
 
   const itemAt = (e: ThreeEvent<PointerEvent>) => (e.instanceId === undefined ? undefined : items[e.instanceId]);
   const pointer = {

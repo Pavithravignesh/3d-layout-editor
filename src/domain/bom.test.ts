@@ -27,7 +27,7 @@ describe('nextLabel', () => {
     expect(nextLabel([makeItem('cabinet', 1, 1, 0, 'C-01')], 'drive')).toBe('D-01');
   });
 
-  it('never reuses a number, even after a delete', () => {
+  it('continues after the highest number instead of refilling gaps', () => {
     const items = [makeItem('cabinet', 1, 1, 0, 'C-01'), makeItem('cabinet', 3, 1, 0, 'C-03')];
     expect(nextLabel(items, 'cabinet')).toBe('C-04');
   });

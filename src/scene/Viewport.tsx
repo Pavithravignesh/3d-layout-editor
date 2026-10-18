@@ -12,7 +12,7 @@ export function Viewport() {
   const { t } = useTranslation();
   const fmt = useFormat();
   const placing = useEditor((s) => s.placing);
-  const hasSelection = useEditor((s) => s.selectedId !== null);
+  const selectionCount = useEditor((s) => s.selectedIds.length);
 
   return (
     <div className={styles.viewport} role="region" aria-label={t('viewport.label')}>
@@ -52,7 +52,13 @@ export function Viewport() {
         )}
       </div>
       <p className={styles.help}>
-        {placing ? t('palette.placingHint') : hasSelection ? t('viewport.helpSelected') : t('viewport.help')}
+        {placing
+          ? t('palette.placingHint')
+          : selectionCount > 1
+            ? t('viewport.helpGroup')
+            : selectionCount === 1
+              ? t('viewport.helpSelected')
+              : t('viewport.help')}
       </p>
     </div>
   );
