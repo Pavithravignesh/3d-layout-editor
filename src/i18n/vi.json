@@ -19,9 +19,12 @@
     "batch": "thêm {{target}} thiết bị thử nghiệm"
   },
   "announce": {
-    "done": "Đã thực hiện: {{action}}",
-    "undo": "Đã hoàn tác: {{action}}",
-    "redo": "Đã làm lại: {{action}}"
+    "done": "Đã thực hiện: {{action}}.",
+    "undo": "Đã hoàn tác: {{action}}.",
+    "redo": "Đã làm lại: {{action}}.",
+    "position": "Hiện ở {{x}}, {{z}} m.",
+    "tooClose": "Quá gần {{other}} ({{gap}} m).",
+    "overlaps": "Chồng lên {{other}}."
   },
   "list": {
     "position": "{{x}}, {{z}} m",
@@ -96,6 +99,7 @@
     "loading": "Đang tải chế độ xem 3D…",
     "placing": "Đang đặt: {{name}}",
     "floor": "Sàn {{w}} m × {{d}} m · lưới {{cell}} m",
-    "help": "Kéo để xoay · Kéo chuột phải để di chuyển · Cuộn để thu phóng"
+    "help": "Kéo để xoay · Kéo chuột phải để di chuyển · Cuộn để thu phóng",
+    "helpSelected": "Phím mũi tên di chuyển 0,5 m (Shift: 1 m) · R để xoay · Delete để xóa · Esc để bỏ chọn"
   }
 }

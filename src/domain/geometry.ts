@@ -15,7 +15,12 @@ export function footprint(type: ItemTypeId, rotation: Rotation): Footprint {
 
 export function bounds(item: Pick<Item, 'type' | 'rotation' | 'x' | 'z'>): Bounds {
   const { w, d } = footprint(item.type, item.rotation);
-  return { minX: item.x - w / 2, maxX: item.x + w / 2, minZ: item.z - d / 2, maxZ: item.z + d / 2 };
+  return {
+    minX: round(item.x - w / 2),
+    maxX: round(item.x + w / 2),
+    minZ: round(item.z - d / 2),
+    maxZ: round(item.z + d / 2),
+  };
 }
 
 /**

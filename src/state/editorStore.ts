@@ -19,6 +19,8 @@ export type EditorState = EditorDoc & {
 
   place(type: ItemTypeId, x: number, z: number): void;
   move(id: string, x: number, z: number): void;
+  /** Moves an item by whole grid steps (keyboard editing); stays on the floor. */
+  nudge(id: string, dx: number, dz: number): void;
   rotate(id: string): void;
   update(id: string, changes: Partial<Pick<Item, 'x' | 'z' | 'rotation' | 'label'>>): void;
   remove(id: string): void;
@@ -65,6 +67,11 @@ export const useEditor = create<EditorState>()((set, get) => {
       const item = find(get(), id);
       if (!item) return;
       run(updateItem(get().layout, id, snapToGrid(item.type, item.rotation, x, z), 'move'));
+    },
+
+    nudge(id, dx, dz) {
+      const item = find(get(), id);
+      if (item) get().move(id, item.x + dx, item.z + dz);
     },
 
     rotate(id) {

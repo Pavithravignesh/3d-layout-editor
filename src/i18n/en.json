@@ -19,9 +19,12 @@
     "batch": "add {{target}} test items"
   },
   "announce": {
-    "done": "Done: {{action}}",
-    "undo": "Undone: {{action}}",
-    "redo": "Redone: {{action}}"
+    "done": "Done: {{action}}.",
+    "undo": "Undone: {{action}}.",
+    "redo": "Redone: {{action}}.",
+    "position": "Now at {{x}}, {{z}} m.",
+    "tooClose": "Too close to {{other}} ({{gap}} m).",
+    "overlaps": "Overlaps {{other}}."
   },
   "list": {
     "position": "{{x}}, {{z}} m",
@@ -99,6 +102,7 @@
     "loading": "Loading 3D view…",
     "placing": "Placing: {{name}}",
     "floor": "Floor {{w}} m × {{d}} m · {{cell}} m grid",
-    "help": "Drag to orbit · Right-drag to pan · Scroll to zoom"
+    "help": "Drag to orbit · Right-drag to pan · Scroll to zoom",
+    "helpSelected": "Arrow keys move 0.5 m (Shift: 1 m) · R rotates · Delete removes · Esc deselects"
   }
 }

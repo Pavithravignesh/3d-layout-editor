@@ -390,11 +390,11 @@
 <table>
   <tr><th style="width:30%">Keys</th><th>Screen reader says</th></tr>
   <tr><td><code>Tab</code> to <i>Placed items</i>, <code>↓</code> / <code>↑</code>, <code>Home</code>, <code>End</code></td><td>"C-03, control cabinet, 4, 2.5 metres. Closer than the minimum clearance to another item." The item is selected in 3D too.</td></tr>
-  <tr><td>Arrow keys in the 3D view</td><td>"C-03 moved east to 4.5 metres. Too close to D-07: 0.4 metres."</td></tr>
+  <tr><td>Arrow keys (one 0.5 m cell; Shift: 1 m)</td><td>"Done: move C-03. Now at 4.5, 2.5 metres. Too close to D-07 (0.4 metres)."</td></tr>
   <tr><td><code>R</code> / <code>Delete</code> / <code>Ctrl+Z</code></td><td>"Done: rotate C-03." / "Done: delete C-03." / "Undone: delete C-03."</td></tr>
   <tr><td><code>Tab</code> to <i>Rule check</i>, <code>Enter</code> on a message</td><td>"C-03 and D-07 are 0.4 metres apart." Selects the item.</td></tr>
 </table>
-<p class="small muted">Part B implements the list navigation, R, Delete, undo/redo, the rule panel and the live-region announcements; arrow-key nudging inside the 3D view is the next step.</p>
+<p class="small muted">All of Flow 5 is implemented in Part B, including the arrow-key nudge and the announcements quoted above.</p>
 
 <h2><span class="num">7</span>Embedding in the host</h2>
 <p class="lead">Iframe or micro-frontend and why, the <code>postMessage</code> contract (context hand-off, token refresh, resize, navigation, errors), origin checks, CSP and cookie constraints, and matching the host design language.</p>
@@ -655,7 +655,7 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 <h3>11.6 Testing strategy</h3>
 <table>
   <tr><th style="width:15%">Level</th><th style="width:24%">Tools</th><th>What it covers</th></tr>
-  <tr><td>Unit</td><td>Vitest</td><td>Formatters per locale, Zod schemas, event handlers; in Surface 2 the whole domain: snapping, rules (checked against brute force), commands, history, BOM (Part B: 27 tests)</td></tr>
+  <tr><td>Unit</td><td>Vitest</td><td>Formatters per locale, Zod schemas, event handlers; in Surface 2 the whole domain: snapping, rules (checked against brute force), commands, history, BOM, keyboard nudging (Part B: 30 tests)</td></tr>
   <tr><td>Component</td><td>Testing Library, Storybook, axe</td><td>Every shared component in 3 languages, light/dark and both densities</td></tr>
   <tr><td>Contract</td><td>OpenAPI types, MSW, zod</td><td>API mocks generated from the spec; the host contract tested against a test host page</td></tr>
   <tr><td>End-to-end</td><td>Playwright</td><td>The five main flows by keyboard in 3 locales; offline and slow networks; WebSocket resume; concurrent approval; the editor embedded in the test host with token refresh</td></tr>
@@ -764,7 +764,7 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 <table>
   <tr><th style="width:34%">Section</th><th>Where it is in Part B</th></tr>
   <tr><td>§8.1 Scene · §9.4 instancing</td><td><code>src/scene/</code>: floor, <code>ItemsLayer</code> (one InstancedMesh per part per type), non-raycast overlays, placement ghost</td></tr>
-  <tr><td>§8.3 Snapping · §8.4 commands · §8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash), 27 unit tests</td></tr>
+  <tr><td>§8.3 Snapping · §8.4 commands · §8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash); 30 unit tests in total</td></tr>
   <tr><td>§8.6 Sync</td><td><code>src/state/editorStore.ts</code>: one store read by the 3D view, list, properties and rule panel</td></tr>
   <tr><td>§3.3 Tokens and components</td><td><code>src/design-system/</code>: a small version of <code>@cloudworx/ui</code></td></tr>
   <tr><td>§6 Localisation and accessibility</td><td>EN/VI with <code>Intl</code> numbers; list as one Tab stop with arrow keys; live region for edits, undo and redo</td></tr>

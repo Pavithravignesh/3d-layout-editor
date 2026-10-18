@@ -12,6 +12,7 @@ export function Viewport() {
   const { t } = useTranslation();
   const fmt = useFormat();
   const placing = useEditor((s) => s.placing);
+  const hasSelection = useEditor((s) => s.selectedId !== null);
 
   return (
     <div className={styles.viewport} role="region" aria-label={t('viewport.label')}>
@@ -50,7 +51,9 @@ export function Viewport() {
           </span>
         )}
       </div>
-      <p className={styles.help}>{placing ? t('palette.placingHint') : t('viewport.help')}</p>
+      <p className={styles.help}>
+        {placing ? t('palette.placingHint') : hasSelection ? t('viewport.helpSelected') : t('viewport.help')}
+      </p>
     </div>
   );
 }

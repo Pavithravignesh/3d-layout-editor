@@ -42,7 +42,7 @@ They are slower than the native tools and are not needed on a normal machine.
 | --- | --- |
 | Place an item | Choose it under **Equipment**, then click the floor. **Shift**-click to place several; **Esc** cancels |
 | Select | Click an item in 3D or in **Placed items**; the selection is shared |
-| Move | Drag the item; it snaps to the 0.5 m grid. Or type a position in **Properties** |
+| Move | Drag the item; it snaps to the 0.5 m grid. Or press the **arrow keys** to move the selected item one cell (0.5 m), **Shift + arrow** for 1 m. Or type a position in **Properties** |
 | Rotate | **R**, the **Rotate 90°** button, or the rotation field |
 | Delete | **Delete** or the **Delete** button |
 | Undo / redo | **Ctrl+Z** / **Ctrl+Y** (or **Ctrl+Shift+Z**). The toolbar tooltip names the step, e.g. "Undo move D-01" |
@@ -82,7 +82,7 @@ src/
 
 **Rendering.** Items are drawn with one `InstancedMesh` per part (body, plinth, front panel) per type: **9 draw calls for the items whatever their number**. Per-instance colours show violations. The 3D view is loaded lazily, so the panels are usable before three.js has downloaded.
 
-**Accessibility.** Keyboard shortcuts for every edit, a single Tab stop for the item list with arrow-key navigation, a polite live region that announces each edit, undo and redo ("Undone: move D-01"), visible focus, and status shown with text and icons as well as colour.
+**Keyboard editing and accessibility.** Every edit works from the keyboard: select with the item list (one Tab stop, ↑ / ↓ / Home / End), move one cell with the arrow keys (Shift for 1 m), rotate with **R**, delete with **Delete**, undo and redo with **Ctrl+Z / Ctrl+Y**. A polite live region announces each edit with the result, for example "Done: move C-01. Now at 5, 2.5 m. Too close to D-01 (0.2 m)." Focus is always visible, and status is shown with text and icons as well as colour.
 
 **Item models.** The equipment is drawn from simple box primitives (body, plinth and a front panel that shows orientation); no external models or textures are used.
 
@@ -106,7 +106,7 @@ How to measure: run `npm run build && npm run preview`, open the app full-screen
 npm test
 ```
 
-27 unit tests cover snapping and rotation, the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), labels and the bill of materials.
+30 unit tests cover snapping and rotation, the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), keyboard nudging (one cell per step, nothing recorded at the floor's edge), labels and the bill of materials.
 
 ## Trade-offs and next steps
 
