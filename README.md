@@ -6,7 +6,7 @@ A browser-based editor for placing electrical equipment on a 20 m × 12 m room f
 
 Built with React 18, TypeScript (strict), three.js via React Three Fiber, and Zustand. This is Part B of the assessment; the architecture design document (Part A) is sent separately as a PDF.
 
-**Live demo:** https://3d-layout-editor.vercel.app (deployed from `main`)
+**Live demo:** https://3d-layout-editor.vercel.app (deployed from `main`). The live demo offers **Boxes** and **Optimised**; the 25.8 MB original model is not published there, so the **Original** comparison runs on a local copy (see [Run it](#run-it)).
 
 ## Run it
 
@@ -18,6 +18,12 @@ npm run dev
 ```
 
 Open http://localhost:5173.
+
+**Optional, to compare the original and optimised models:** run this once. It downloads the 25.8 MB source model (Poly Haven, CC0), which is kept out of git, and adds **Original** to the switch at the top right of the 3D view (refresh the page after it finishes).
+
+```bash
+npm run model:fetch
+```
 
 | Command | What it does |
 | --- | --- |
@@ -94,6 +100,8 @@ Two switches at the **top right of the 3D view** change only how the scene is dr
 | **Optimised** | Control cabinets are drawn with the optimised model (496 KB, KTX2 textures) | The "after" side. The panel at the bottom left lists the download size, GPU texture memory and load time of each model loaded so far |
 | **Instancing: On** (default) | All items of the same kind are drawn together, one draw call per part per type: 15 draw calls for the boxes whatever the number of items | Normal editing |
 | **Off** | Every item is drawn on its own, so draw calls grow with the number of items | To see why instancing matters: 2,500 items fall from 60 fps (15 draw calls) to 35 fps (7,515 draw calls) |
+
+**Where Original is available:** only on a local copy after `npm run model:fetch`. On the live demo, and in a fresh clone before that command, the switch shows **Boxes / Optimised** and the panel at the bottom left says the original is not available.
 
 Selecting, dragging and undo work the same with every combination of the switches.
 
