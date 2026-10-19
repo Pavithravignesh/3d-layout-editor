@@ -695,8 +695,8 @@ window.parent.postMessage(message, hostOrigin);             // never '*'; protec
   <tr><td>Frame rate</td><td><b>60 fps (16.6 ms) at 500 items, 59 fps (17.1 ms) at 2,500</b>, at 1920 × 1080 on Intel Iris Xe (Core i7-1255U, 16 GB, Chrome 155), production build</td></tr>
   <tr><td>Draw calls</td><td>15 at 500 and at 2,500 items (9 for every item, whatever the count); 19 with an item selected</td></tr>
   <tr><td>Clearance check</td><td>4.8 ms at 2,000 items (realistic layout); 5.3 ms at 500 random overlapping items</td></tr>
-  <tr><td>Generating 500 items</td><td>≈ 35 ms, one undo step</td></tr>
   <tr><td>First download</td><td>≈ 34 KB JS + 3 KB CSS gzipped; 3D code ≈ 282 KB loaded after</td></tr>
+  <tr><td>Model optimisation</td><td>25.8 MB glTF cabinet (CC0) → <b>496 KB</b>; GPU textures <b>256 → 3 MB</b>; ready <b>962 → 432 ms</b>. Instancing off → on at 2,500 items: <b>35 → 60 fps</b>, <b>7,515 → 15</b> draw calls</td></tr>
 </table>
 <h3>11.4 Measured in CI and in the field</h3>
 <table>
@@ -829,12 +829,24 @@ window.parent.postMessage(message, hostOrigin);             // never '*'; protec
 <table>
   <tr><th style="width:34%">Section</th><th>Where it is in Part B</th></tr>
   <tr><td>Section 8.1 Scene · Section 9.4 instancing</td><td><code>src/scene/</code>: floor, <code>ItemsLayer</code> (one InstancedMesh per part per type), non-raycast overlays, placement ghost</td></tr>
-  <tr><td>Section 8.3 Snapping · Section 8.4 commands · Section 8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash), <code>group.ts</code> (group moves, paste); 47 unit tests in total</td></tr>
+  <tr><td>Section 8.3 Snapping · Section 8.4 commands · Section 8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash), <code>group.ts</code> (group moves, paste); 49 unit tests in total</td></tr>
+  <tr><td>Section 9 Asset optimisation</td><td><code>tools/optimise-model.mjs</code>: simplify, KTX2, Meshopt, before/after report; <code>src/scene/cabinetModel.ts</code> loads and times the result</td></tr>
   <tr><td>Section 8.6 Sync</td><td><code>src/state/editorStore.ts</code>: one store read by the 3D view, list, properties and rule panel</td></tr>
   <tr><td>Section 3.3 Tokens and components</td><td><code>src/design-system/</code>: a small version of <code>@cloudworx/ui</code></td></tr>
   <tr><td>Section 6 Localisation and accessibility</td><td>EN/VI with <code>Intl</code> numbers; list as one Tab stop with arrow keys; live region for edits, undo and redo</td></tr>
   <tr><td>Section 11 Performance</td><td>Lazy 3D chunk, vendor chunks, FPS / draw-call readout, repeatable 500-item test layout</td></tr>
 </table>
+<h4>Using the editor</h4>
+<table class="small">
+  <tr><th style="width:34%">Keys</th><th>What they do</th></tr>
+  <tr><td><code>Ctrl+Z</code> · <code>Ctrl+Y</code> (or <code>Ctrl+Shift+Z</code>)</td><td>Undo · redo</td></tr>
+  <tr><td>Arrow keys (<code>Shift</code>: 1 m)</td><td>Move the selection one 0.5 m cell</td></tr>
+  <tr><td><code>R</code> · <code>Delete</code></td><td>Rotate the selection 90° · delete it</td></tr>
+  <tr><td><code>Ctrl+A</code> · <code>Ctrl+C</code> / <code>X</code> / <code>V</code></td><td>Select all · copy, cut, paste</td></tr>
+  <tr><td><code>Esc</code></td><td>Stop placing, or clear the selection</td></tr>
+</table>
+<p class="small"><b>Several items:</b> <code>Ctrl</code>-click items in 3D (in the list, <code>Ctrl</code>-click adds and <code>Shift</code>-click selects a range). Dragging any selected item moves the group; arrow keys, <code>R</code> and <code>Delete</code> act on all of it. Pasted copies land one cell down-right with the next labels. Each group action is one undo step.</p>
+<p class="small"><b>Display switches</b> (top right of the 3D view; they change only the drawing, never the layout): <b>Boxes / Model</b> draws control cabinets as simple boxes or as the optimised glTF model, whose load size, GPU memory and load time appear at the bottom left. <b>Instancing On / Off</b> draws items of one kind together (15 draw calls) or each on its own, to show what instancing saves.</p>
 <h3>A.2 Surface 1 wireframes</h3>
 <p class="small">01 Home · 02 Task inbox · 03 Suppliers grid · 04 Onboarding (Vietnamese) · 05 RFQ comparison · 06 Approval (Chinese) · 07 AI assistant · 08 Mobile inbox. Menus follow the role (buyer, supplier, approver). Source: <code>design/wireframes/surface-1-procurement.excalidraw</code>.</p>
 <img src="wireframes-surface1.svg" alt="Overview of the eight Surface 1 wireframes" style="width:100%; border:1px solid var(--line); border-radius:6px;">

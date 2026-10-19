@@ -54,7 +54,45 @@ They are slower than the native tools and are not needed on a normal machine.
 | Camera | Drag to orbit, right-drag to pan, scroll to zoom |
 | Language | **EN / VI** in the top bar; numbers follow the locale (0.5 m → 0,5 m) |
 | Performance test | **Add 500 test items** in the top bar; each click adds 500 more in new positions (one undo step removes a batch) |
-| Model and instancing comparison | At the top right of the 3D view: **Boxes / Model** draws cabinets with the optimised glTF model; **Instancing: On / Off** draws every item as its own mesh. With **Model** on, the bottom-left panel shows the model's download size, GPU texture memory and load time, and loads the 25.8 MB original for comparison |
+| Display switches | **Boxes / Model** and **Instancing: On / Off** at the top right of the 3D view; see [Display switches](#display-switches-boxes--model-and-instancing-on--off) |
+
+### Keyboard shortcuts
+
+Shortcuts work whenever the cursor is not in a text field. On a Mac, use Cmd instead of Ctrl.
+
+| Keys | What they do |
+| --- | --- |
+| **Ctrl+Z** | Undo the last edit |
+| **Ctrl+Y** or **Ctrl+Shift+Z** | Redo |
+| **← → ↑ ↓** | Move the selection one cell (0.5 m); with **Shift**, 1 m |
+| **R** | Rotate the selection 90° (each item turns in place) |
+| **Delete** or **Backspace** | Delete the selection |
+| **Ctrl+A** | Select every item |
+| **Ctrl+C** / **Ctrl+X** / **Ctrl+V** | Copy / cut / paste the selection |
+| **Esc** | Stop placing, or clear the selection |
+| **Tab** into **Placed items**, then **↑ ↓ Home End** | Move through the list; the selected item is highlighted in 3D too |
+
+Every keyboard edit is announced to screen readers, for example "Done: move C-01. Now at 5, 2.5 m. Too close to D-01 (0.2 m)."
+
+### Editing depth: working with several items
+
+1. **Select several items.** In the 3D view, **Ctrl-click** (or **Shift-click**) items to add or remove them. In **Placed items**, **Ctrl-click** adds an item and **Shift-click** selects a range. **Ctrl+A** selects everything.
+2. **Edit them together.** Drag any selected item and the whole group moves; it stops as a unit at the floor's edge. The arrow keys move the group, **R** turns each item in place, and **Delete** removes them all. The **Properties** panel shows the group: how many of each type, any clearance problems, and buttons to rotate, copy or delete them.
+3. **Copy and paste.** **Ctrl+C**, then **Ctrl+V**: the copies appear one cell down and to the right, get the next free labels (C-04, D-02…) and become the selection, so you can drag them straight away. Pasting again places another set a further cell away. **Ctrl+X** cuts.
+4. **Undo.** Each group action, including a paste, is one step: a single **Ctrl+Z** reverts all of it.
+
+### Display switches: Boxes / Model and Instancing On / Off
+
+Two switches at the **top right of the 3D view** change only how the scene is drawn. They never change the layout and are not part of undo.
+
+| Switch | What it means | When to use it |
+| --- | --- | --- |
+| **Boxes** (default) | Every item is drawn as simple boxes at its exact catalogue size | Normal editing |
+| **Model** | Control cabinets are drawn with the optimised glTF model (496 KB, KTX2 textures). Drives and transformers stay boxes. The panel at the bottom left shows the model's download size, GPU texture memory and load time, and a button loads the 25.8 MB original once to compare | To see the optimised model and its before/after numbers |
+| **Instancing: On** (default) | All items of the same kind are drawn together, one draw call per part per type: 15 draw calls for the boxes whatever the number of items | Normal editing |
+| **Off** | Every item is drawn on its own, so draw calls grow with the number of items | To see why instancing matters: 2,500 items fall from 60 fps (15 draw calls) to 35 fps (7,515 draw calls) |
+
+Selecting, dragging and undo work the same with every combination of the switches.
 
 ## What is in it
 
