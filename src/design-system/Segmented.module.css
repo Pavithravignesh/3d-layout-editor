@@ -1,0 +1,26 @@
+.group {
+  display: inline-flex;
+  padding: 2px;
+  background: var(--surface-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+.segment {
+  min-width: 40px;
+  height: 26px;
+  padding-inline: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.segment[aria-pressed='true'] {
+  color: var(--color-action);
+  background: var(--color-action-soft);
+}

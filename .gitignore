@@ -4,3 +4,5 @@ dist/
 .env.*
 .claude/
 *.tsbuildinfo
+models-source/
+public/models-original/

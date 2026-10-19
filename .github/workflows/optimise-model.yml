@@ -1,0 +1,26 @@
+# Re-runs the model pipeline on a clean machine and keeps the optimised models and the
+# before/after report as an artifact. Everything runs through WebAssembly, so no native tools.
+name: Optimise model
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  optimise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run model:fetch
+      - run: npm run model:optimise
+      - uses: actions/upload-artifact@v4
+        with:
+          name: optimised-model
+          path: models-source/out/
