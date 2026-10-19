@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bounds, footprint, gapBetween, nextRotation, snapToGrid } from './geometry';
+import { bounds, footprint, gapBetween, isRotation, nextRotation, ROTATIONS, snapToGrid } from './geometry';
 
 describe('footprint', () => {
   it('swaps width and depth on a quarter turn', () => {
@@ -28,9 +28,14 @@ describe('snapToGrid', () => {
   });
 });
 
-describe('nextRotation', () => {
+describe('rotation', () => {
   it('cycles in 90° steps', () => {
-    expect([0, 90, 180, 270].map((r) => nextRotation(r as 0 | 90 | 180 | 270))).toEqual([90, 180, 270, 0]);
+    expect(ROTATIONS.map(nextRotation)).toEqual([90, 180, 270, 0]);
+  });
+
+  it('accepts only quarter turns from outside input', () => {
+    expect(ROTATIONS.every(isRotation)).toBe(true);
+    expect([45, 360, -90, NaN].some(isRotation)).toBe(false);
   });
 });
 

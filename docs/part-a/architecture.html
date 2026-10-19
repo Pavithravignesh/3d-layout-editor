@@ -6,10 +6,10 @@
 <title>Frontend Architecture Design Document</title>
 <style>
   :root {
-    --ink: #1b1f24; --text: #343a40; --sub: #6c757d; --line: #dee2e6; --soft: #f8f9fa;
-    --accent: #1971c2; --accent-soft: #e7f5ff; --purple: #7048e8; --green: #2f9e44; --amber: #f08c00; --red: #e03131;
+    --ink: #000; --text: #000; --sub: #000; --line: #d0d0d0; --soft: #f4f4f4;
+    --accent: #000; --accent-soft: #f4f4f4; --amber: #000;
   }
-  @page { size: A4; margin: 18mm 17mm 20mm; @bottom-right { content: counter(page) " / " counter(pages); font: 9pt "Segoe UI", sans-serif; color: #868e96; } @bottom-left { content: "Frontend Architecture Design Document · v1.0"; font: 9pt "Segoe UI", sans-serif; color: #868e96; } }
+  @page { size: A4; margin: 18mm 17mm 20mm; @bottom-right { content: counter(page) " / " counter(pages); font: 8.5pt "Segoe UI", sans-serif; color: #000; } @bottom-left { content: "Frontend Architecture Design Document · v1.0"; font: 8.5pt "Segoe UI", sans-serif; color: #000; } }
   @page cover { margin: 0; @bottom-right { content: none; } @bottom-left { content: none; } }
   @page a3 { size: A3 landscape; margin: 10mm; }
   @page wide { size: A4 landscape; margin: 12mm; }
@@ -25,15 +25,16 @@
   h4 { font-size: 10.5pt; margin: 14px 0 4px; break-after: avoid; }
   p { margin: 0 0 8px; }
   ul, ol { margin: 0 0 8px; padding-left: 20px; } li { margin: 2px 0; }
-  code { font: 9pt "Cascadia Code", Consolas, monospace; background: var(--soft); border: 1px solid #edf0f2; border-radius: 4px; padding: 0 4px; color: #1b4f8a; }
+  code { font: 9pt "Cascadia Code", Consolas, monospace; background: var(--soft); border: 1px solid #e4e4e4; border-radius: 3px; padding: 0 4px; color: #000; }
+  a { color: #000; }
   pre { font: 8.6pt/1.5 "Cascadia Code", Consolas, monospace; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 6px 0 12px; white-space: pre-wrap; break-inside: avoid; }
   table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; font-size: 9pt; }
   th, td { text-align: left; vertical-align: top; padding: 5px 8px; border-bottom: 1px solid var(--line); }
-  th { background: var(--soft); color: var(--ink); font-weight: 600; border-bottom: 1.5px solid #ced4da; }
+  th { background: var(--soft); color: #000; font-weight: 600; border-bottom: 1.5px solid #000; }
   tr { break-inside: avoid; }
   td.k, th.k { white-space: nowrap; }
   .lead { font-size: 11pt; color: var(--ink); }
-  .note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 8px 12px; border-radius: 0 6px 6px 0; margin: 8px 0 12px; break-inside: avoid; }
+  .note { border-left: 3px solid #000; background: var(--soft); padding: 8px 12px; border-radius: 0; margin: 8px 0 12px; break-inside: avoid; }
   .note.warn { border-color: var(--amber); background: #fff9db; }
   .note b { color: var(--ink); }
   .todo { background: #fff3bf; outline: 1px dashed var(--amber); padding: 0 3px; }
@@ -42,14 +43,13 @@
   .card h4 { margin-top: 0; }
   .muted { color: var(--sub); }
   .small { font-size: 8.8pt; }
-  .cover { page: cover; height: 297mm; display: flex; flex-direction: column; justify-content: space-between; padding: 30mm 22mm 22mm; background: linear-gradient(160deg, #0b2545 0%, #134074 55%, #1971c2 100%); color: #fff; }
-  .cover .brand { font-size: 10pt; letter-spacing: .18em; text-transform: uppercase; opacity: .85; }
-  .cover h1 { color: #fff; font-size: 32pt; line-height: 1.12; margin: 18mm 0 6mm; font-weight: 700; }
-  .cover .subtitle { font-size: 14pt; opacity: .92; max-width: 145mm; }
-  .cover .meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 18px; font-size: 10pt; opacity: .92; }
-  .cover .meta b { font-weight: 600; opacity: .75; }
-  .cover .scope { margin-top: 10mm; display: flex; gap: 8px; flex-wrap: wrap; }
-  .cover .scope span { border: 1px solid #fff; background: #fff; color: #134074; border-radius: 14px; padding: 3px 11px; font-size: 9pt; font-weight: 600; }
+  .cover { page: cover; height: 297mm; display: flex; flex-direction: column; justify-content: space-between; padding: 34mm 25mm 28mm; background: #fff; color: #000; }
+  .cover .brand { font-size: 10.5pt; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+  .cover h1 { color: #000; font-size: 30pt; line-height: 1.15; margin: 42mm 0 7mm; font-weight: 700; }
+  .cover .rule { width: 72mm; border-top: 1.2px solid #000; margin: 0 0 6mm; }
+  .cover .subtitle { font-size: 13pt; }
+  .cover .meta { display: grid; grid-template-columns: 34mm 1fr; gap: 6px 0; font-size: 10pt; border-top: 0.75px solid #000; padding-top: 6mm; }
+  .cover .meta b { font-weight: 600; }
   .toc { list-style: none; padding: 0; margin: 10px 0; }
   .toc li { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px dotted var(--line); }
   .toc .n { width: 28px; color: var(--accent); font-weight: 600; }
@@ -67,31 +67,30 @@
   .kpi .l { font-size: 8.6pt; color: var(--sub); }
   .flow { counter-reset: s; list-style: none; padding: 0; }
   .flow li { counter-increment: s; position: relative; padding: 4px 0 4px 30px; }
-  .flow li::before { content: counter(s); position: absolute; left: 0; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 8.5pt; font-weight: 700; display: grid; place-items: center; }
+  .flow li::before { content: counter(s); position: absolute; left: 0; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.2px solid #000; color: #000; font-size: 8.5pt; font-weight: 700; display: grid; place-items: center; }
   .seq td:first-child { font-weight: 700; color: var(--accent); width: 26px; }
-  @media screen { body { background: #e9ecef; } main { background: #fff; padding: 32px 48px; margin: 24px auto; box-shadow: 0 2px 12px rgba(0,0,0,.08); } .cover { max-width: 820px; margin: 24px auto 0; height: auto; min-height: 1000px; } .sheet { max-width: 1400px; margin: 24px auto; background: #fff; padding: 24px; } h2 { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); } }
+  @media screen { body { background: #e9ecef; } main { background: #fff; padding: 32px 48px; margin: 24px auto; box-shadow: 0 2px 12px rgba(0,0,0,.08); } .cover { max-width: 820px; margin: 24px auto 0; height: auto; min-height: 1000px; box-shadow: 0 2px 12px rgba(0,0,0,.08); } .sheet { max-width: 1400px; margin: 24px auto; background: #fff; padding: 24px; } h2 { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); } }
 </style>
 </head>
 <body>
 
 <section class="cover">
   <div>
-    <div class="brand">Cloudworx · Industrial Digital Twin Platform</div>
+    <div class="brand">Cloudworx</div>
     <h1>Frontend Architecture<br>Design Document</h1>
-    <div class="subtitle">Part A · Technical assessment for the Frontend Developer (React) role. Covers Surface 1, the Enterprise Procurement Workspace, and Surface 2, the Embedded 3D Configuration Workspace, built on one design system.</div>
-    <div class="scope"><span>Surface 1 · Procurement</span><span>Surface 2 · Embedded 3D workspace</span><span>Shared design system</span></div>
+    <div class="rule"></div>
+    <div class="subtitle">Part A · Frontend Developer (React) assessment</div>
   </div>
   <div class="meta">
-    <b>Prepared by</b><span>[Your name]</span>
+    <b>Prepared by</b><span>Pavithravignesh Sathasivam</span>
     <b>Version</b><span>1.0</span>
     <b>Date</b><span>19 October 2026</span>
-    <b>Deliverables</b><span>A1 architecture diagram (§2) · A2 written explanation (§3–§15)</span>
     <b>Part B</b><span>github.com/Pavithravignesh/3d-layout-editor</span>
   </div>
 </section>
 
 <main>
-<h2 style="break-before: page"><span class="num">·</span>Contents</h2>
+<h2 style="break-before: page">Contents</h2>
 <ul class="toc">
   <li><span class="n">0</span>Summary<span class="d">the decisions on one page</span></li>
   <li><span class="n">1</span>Context and design drivers<span class="d">from the brief's numbers to design rules</span></li>
@@ -105,9 +104,9 @@
   <li><span class="n">9</span>3D asset optimisation<span class="d">brief item 7</span></li>
   <li><span class="n">10</span>AI assistant panel<span class="d">brief item 8</span></li>
   <li><span class="n">11</span>Performance and quality<span class="d">brief item 9</span></li>
-  <li><span class="n">12</span>End-to-end sequence: fix a clearance violation<span class="d">A2</span></li>
-  <li><span class="n">13</span>Decision log and rejected trade-offs<span class="d">A2</span></li>
-  <li><span class="n">14</span>Assumptions<span class="d">A2</span></li>
+  <li><span class="n">12</span>End-to-end sequence: fix a clearance violation<span class="d">Deliverable A2</span></li>
+  <li><span class="n">13</span>Decision log and rejected trade-offs<span class="d">Deliverable A2</span></li>
+  <li><span class="n">14</span>Assumptions<span class="d">Deliverable A2</span></li>
   <li><span class="n">15</span>Risks and open questions</li>
   <li><span class="n">A</span>Appendix: Part B reference build, wireframes, glossary</li>
 </ul>
@@ -145,17 +144,17 @@
   <tr><td>RFQs: 40 line items × 8 suppliers</td><td>Wide, dense, mixed currencies</td><td>Pinned headers, supplier columns generated from data, converted currency with the original kept</td></tr>
   <tr><td>English, Vietnamese, Simplified Chinese from one build; VND, INR, CNY, USD</td><td>Runtime language switch, locale formats</td><td>Lazy translations per language and screen; <code>Intl</code> for every date, number and amount</td></tr>
   <tr><td>WCAG 2.2 AA</td><td>Keyboard and screen-reader access everywhere, including 3D</td><td>Accessible primitives, axe in CI, scripted keyboard paths, a text twin of the 3D scene</td></tr>
-  <tr><td>Up to 2,000 placed items from 300 glTF models of 2–40 MB with three LODs</td><td>Raw CAD is unusable in a browser</td><td>An asset pipeline with per-model budgets; instancing by model and LOD (§9)</td></tr>
-  <tr><td>≥ 50 fps at 1080p on integrated graphics, &lt; 300 draw calls, &lt; 1 GB</td><td>20 ms per frame, everything included</td><td>A frame, draw-call and memory budget measured in CI and in the field (§11)</td></tr>
-  <tr><td>First useful screen ≤ 2.5 s on 10 Mbps VPN</td><td>Every kilobyte and round trip counts</td><td>A budget per resource, measured in CI on a throttled profile (§11)</td></tr>
-  <tr><td>Surface 2 inside the host page, host passes context, host design language</td><td>Someone else's page, sign-in and brand</td><td>Iframe with a typed, origin-checked contract; host tokens mapped onto ours (§7)</td></tr>
+  <tr><td>Up to 2,000 placed items from 300 glTF models of 2–40 MB with three LODs</td><td>Raw CAD is unusable in a browser</td><td>An asset pipeline with per-model budgets; instancing by model and LOD (Section 9)</td></tr>
+  <tr><td>≥ 50 fps at 1080p on integrated graphics, &lt; 300 draw calls, &lt; 1 GB</td><td>20 ms per frame, everything included</td><td>A frame, draw-call and memory budget measured in CI and in the field (Section 11)</td></tr>
+  <tr><td>First useful screen ≤ 2.5 s on 10 Mbps VPN</td><td>Every kilobyte and round trip counts</td><td>A budget per resource, measured in CI on a throttled profile (Section 11)</td></tr>
+  <tr><td>Surface 2 inside the host page, host passes context, host design language</td><td>Someone else's page, sign-in and brand</td><td>Iframe with a typed, origin-checked contract; host tokens mapped onto ours (Section 7)</td></tr>
   <tr><td>REST + WebSocket backends (fixed)</td><td>Two channels only</td><td>REST for reads and commands; the WebSocket for live updates <i>and</i> streamed AI replies; no third protocol</td></tr>
 </table>
 </main>
 
 <section class="sheet a3">
   <h2><span class="num">2</span>Architecture overview · Deliverable A1</h2>
-  <p class="small muted" style="margin-bottom:6px">Both surfaces drawn in layers inside the browser, the server side kept to a few boxes, the trust boundary, and the protocol on every connection (table in the diagram). Editable source: <code>diagram-a1.excalidraw</code>. Build and release: §3.2.</p>
+  <p class="small muted" style="margin-bottom:6px">Both surfaces drawn in layers inside the browser, the server side kept to a few boxes, the trust boundary, and the protocol on every connection (table in the diagram). Editable source: <code>diagram-a1.excalidraw</code>. Build and release: end of Section 3.</p>
   <img src="diagram-a1.svg" alt="A1: Surface 1 (procurement single-page app) and Surface 2 (configurator in an iframe inside the host page), each drawn in five layers sharing the same versioned UI packages; below the trust boundary the CDN, BFF, Sentry, Configurator API, 3D asset CDN, host identity provider and backend services; connections 1 to 14 with protocols">
 </section>
 
@@ -166,21 +165,21 @@
   <tr><td>①</td><td>Users → Surface 1</td><td>HTTPS (TLS 1.2+) over VPN/VDI</td><td>One build serves all roles and languages</td></tr>
   <tr><td>②</td><td>Surface 1 → CDN</td><td>HTTPS GET, HTTP/2, immutable cache</td><td>Hashed JS/CSS, translations per language and screen, font subsets, runtime <code>config.json</code></td></tr>
   <tr><td>③</td><td>Surface 1 → BFF</td><td>HTTPS REST/JSON, session cookie</td><td>All reads and commands. Cookie <code>HttpOnly; Secure; SameSite=Lax</code>; headers: CSRF token, <code>X-Correlation-Id</code>, <code>Accept-Language</code>, <code>If-Match</code>, <code>Idempotency-Key</code></td></tr>
-  <tr><td>④</td><td>Surface 1 ↔ BFF</td><td>WSS, JSON <code>{ seq, type, data }</code></td><td>Task, quote, approval and job events plus AI reply tokens; heartbeat; resume from last <code>seq</code></td></tr>
+  <tr><td>④</td><td>Surface 1 ↔ BFF</td><td>WSS, JSON <code>{ seq, type, data }</code></td><td>Task, quote, approval and job events plus AI reply tokens; heartbeat; resume from last <code>seq</code>. Session cookie; the BFF checks the <code>Origin</code> header on the handshake</td></tr>
   <tr><td>⑤</td><td>Surface 1 → Sentry</td><td>HTTPS</td><td>Errors, traces and Web Vitals, personal data scrubbed</td></tr>
   <tr><td>⑥</td><td>BFF → backend services</td><td>HTTPS REST, mTLS (internal)</td><td>Aggregation per screen; the BFF subscribes to the backend's WebSocket channel and filters events per user</td></tr>
   <tr><td>⑦</td><td>Sales engineer → host page</td><td>HTTPS</td><td>The host's own application and sign-in</td></tr>
   <tr><td>⑧</td><td>Host shell ↔ host identity provider</td><td>OIDC (owned by the host)</td><td>Issues a short-lived access token whose audience is the Configurator API</td></tr>
-  <tr><td>⑨</td><td>Host page ↔ Surface 2 iframe</td><td><code>postMessage</code>, typed and origin-checked</td><td>Context, token refresh, theme, resize, navigation, errors (§7.2)</td></tr>
+  <tr><td>⑨</td><td>Host page ↔ Surface 2 iframe</td><td><code>postMessage</code>, typed and origin-checked</td><td>Context, token refresh, theme, resize, navigation, errors (Section 7.2)</td></tr>
   <tr><td>⑩</td><td>Surface 2 → Configurator API</td><td>HTTPS REST/JSON, <code>Authorization: Bearer</code></td><td>Layouts, catalogue, layout operations with version, assistant runs</td></tr>
-  <tr><td>⑪</td><td>Surface 2 ↔ Configurator API</td><td>WSS, JSON events</td><td>Authoritative rule results, collaborator changes, <code>assistant.delta</code> tokens</td></tr>
-  <tr><td>⑫</td><td>Surface 2 → 3D asset CDN</td><td>HTTPS GET, HTTP/2, immutable cache</td><td>glTF per model and LOD, KTX2 textures, model manifest (§9)</td></tr>
+  <tr><td>⑪</td><td>Surface 2 ↔ Configurator API</td><td>WSS, JSON events</td><td>Authoritative rule results, collaborator changes, <code>assistant.delta</code> tokens. Opened with a one-time ticket (Section 7.3)</td></tr>
+  <tr><td>⑫</td><td>Surface 2 → 3D asset CDN</td><td>HTTPS GET, HTTP/2, immutable cache</td><td>glTF per model and LOD, KTX2 textures, model manifest (Section 9)</td></tr>
   <tr><td>⑬</td><td>Surface 2 → Sentry</td><td>HTTPS</td><td>Errors, WebGL context loss, frame time, draw calls and memory per device class</td></tr>
   <tr><td>⑭</td><td>Configurator API → backend services</td><td>HTTPS REST, mTLS (internal)</td><td>Catalogue, pricing, AI agent; the agent calls the LLM provider server-side only</td></tr>
 </table>
 
 <h2><span class="num">3</span>Application structure</h2>
-<p class="lead">How the two surfaces share a design system, tokens and components without sharing one release train, and where the module boundaries are.</p>
+<p class="lead">How the two surfaces share a design system, tokens and components without sharing one release train, where the module boundaries are, and why this beats micro-frontends here.</p>
 
 <h3>3.1 One repository, separately versioned packages</h3>
 <pre>cloudworx-frontend/                Nx + pnpm workspaces
@@ -202,22 +201,18 @@
   <li>A change to <code>packages/ui</code> merges with a <b>changeset</b> describing it as a patch, minor or major change.</li>
   <li>CI publishes the new version (for example <code>@cloudworx/ui@2.4.0</code>) to the private registry with a changelog.</li>
   <li>Each app pins the versions it uses. Surface 1 can take 2.4.0 this week while Surface 2 stays on 2.1.0 mid-release; nothing breaks for an app that did not opt in.</li>
-  <li>Nx <code>affected</code> builds, tests and deploys only the apps whose code or pinned versions changed. 3D models have their own pipeline (§9).</li>
+  <li>Nx <code>affected</code> builds, tests and deploys only the apps whose code or pinned versions changed. 3D models have their own pipeline (Section 9).</li>
 </ol>
 <div class="note">Within the monorepo, apps consume packages through <b>pinned published versions</b>, not live workspace links, in release builds. Developers can link locally to try an unreleased change, but CI builds exactly what will ship.</div>
 </main>
 
-<section class="sheet wide">
-  <h2 style="font-size:13pt">Build and release</h2>
-  <img src="build-release.svg" alt="Build and release: app release (pull request, CI checks, quality gates, build, staging, production), shared package release (changeset, library checks, publish, upgrade pull requests, app takes it), 3D asset release (export, clean, LODs, compress, budget check, publish), with safe rollout, monitoring and rollback">
-</section>
 
 <main>
 <h3 style="margin-top:0">3.3 Design tokens in layers</h3>
 <table>
   <tr><th style="width:18%">Layer</th><th style="width:40%">Example</th><th>Who changes it</th></tr>
   <tr><td>Primitive</td><td><code>--blue-600: #1971c2</code></td><td>Design system team</td></tr>
-  <tr><td>Brand</td><td><code>--brand-primary: var(--blue-600)</code></td><td>Swapped per brand. Surface 2 maps the host's brand here at runtime (§7.7)</td></tr>
+  <tr><td>Brand</td><td><code>--brand-primary: var(--blue-600)</code></td><td>Swapped per brand. Surface 2 maps the host's brand here at runtime (Section 7.7)</td></tr>
   <tr><td>Semantic</td><td><code>--color-action</code>, <code>--text-strong</code>, <code>--surface-raised</code></td><td>The only layer components may use</td></tr>
   <tr><td>Mode</td><td>Light / dark; compact / comfortable density</td><td>Set by an attribute on <code>&lt;html&gt;</code>; grids default to compact</td></tr>
 </table>
@@ -225,29 +220,49 @@
 
 <h3>3.4 Module boundaries</h3>
 <div class="grid2">
-  <div class="card"><h4>Rule 1 · Dependencies point one way</h4><p class="small">Apps → packages → tokens. Packages never import apps; apps never import each other. Enforced by Nx module-boundary lint rules.</p></div>
-  <div class="card"><h4>Rule 2 · Each module has one front door</h4><p class="small">Every package and feature exports a public <code>index.ts</code>. Deep imports into another module's internals are lint errors.</p></div>
+  <div class="card"><h4>Rule 1 · Dependencies point one way</h4><p class="small">Apps → packages → tokens; inside an app, <code>app</code> → <code>features</code> → <code>state</code> / <code>scene</code> → <code>domain</code>. Packages never import apps; apps never import each other.</p></div>
+  <div class="card"><h4>Rule 2 · Each module has one front door</h4><p class="small">Every package and feature exports a public <code>index.ts</code>. Deep imports into another module's internals are lint errors, and <code>package.json</code> <code>exports</code> makes them fail the build too.</p></div>
   <div class="card"><h4>Rule 3 · Shared means generic</h4><p class="small">A component enters <code>packages/ui</code> only when both products need it and it carries no business meaning. The supplier grid and the 3D viewport stay in their apps.</p></div>
   <div class="card"><h4>Rule 4 · The domain has no UI imports</h4><p class="small">In Surface 2, <code>domain/</code> (commands, snapping, rules, BOM) imports neither React nor three.js, so it is unit-tested in isolation and can move into a web worker or onto the server unchanged.</p></div>
+  <div class="card"><h4>Rule 5 · Features never import each other</h4><p class="small">They share through the URL, the query cache or the store. The AI panel reads the grid's selection from the store; it never imports the grid.</p></div>
+  <div class="card"><h4>Rule 6 · Enforced and owned</h4><p class="small">Nx tags (<code>type:app|feature|data|domain|ui</code>, <code>scope:procurement|configurator|shared</code>) fail CI on a wrong import. CODEOWNERS per package; the design-system team approves <code>ui</code> and <code>tokens</code>.</p></div>
 </div>
 <table>
-  <tr><th style="width:22%">Layer</th><th>Surface 1 · <code>apps/procurement</code></th><th>Surface 2 · <code>apps/configurator</code></th></tr>
-  <tr><td><code>app/</code></td><td>Shell, router, providers, runtime config, error boundaries</td><td>Host bridge, theme adapter, error boundary with a WebGL fallback</td></tr>
-  <tr><td><code>features/</code></td><td>One folder per screen family</td><td>Panels: palette, items, properties, rule check, BOM, assistant</td></tr>
-  <tr><td><code>domain/</code></td><td>(none: rules live on the server)</td><td>Layout model, commands and history, snapping, clearance rule, BOM</td></tr>
-  <tr><td><code>state/</code> / <code>data/</code></td><td>Query keys, API client, realtime client, drafts, uploads</td><td>Layout store, API client, realtime client, proposal state</td></tr>
-  <tr><td><code>scene/</code></td><td>(none)</td><td>Floor, instanced items, overlays, asset loader, camera</td></tr>
+  <tr><th style="width:15%">Layer</th><th style="width:20%">May import</th><th>Surface 1 · <code>apps/procurement</code></th><th>Surface 2 · <code>apps/configurator</code></th></tr>
+  <tr><td><code>app/</code></td><td>All layers below</td><td>Shell, router, providers, runtime config, error boundaries</td><td>Host bridge, theme adapter, error boundary with a WebGL fallback</td></tr>
+  <tr><td><code>features/</code></td><td>State, data, scene, domain, packages</td><td>One folder per screen family</td><td>Panels: palette, items, properties, rule check, BOM, assistant</td></tr>
+  <tr><td><code>domain/</code></td><td>Nothing (pure TypeScript)</td><td>(none: rules live on the server)</td><td>Layout model, commands and history, snapping, clearance rule, BOM</td></tr>
+  <tr><td><code>state/</code> / <code>data/</code></td><td>Domain, <code>api-types</code></td><td>Query keys, API client, realtime client, drafts, uploads</td><td>Layout store, API client, realtime client, proposal state</td></tr>
+  <tr><td><code>scene/</code></td><td>State, domain</td><td>(none)</td><td>Floor, instanced items, overlays, asset loader, camera</td></tr>
 </table>
-<p class="small"><b>Rejected:</b> separate repositories (versions drift, cross-cutting changes need several pull requests); one app for both surfaces (one release train, and the host would load procurement code); sharing the design system at runtime with Module Federation (a library change could break a live app that never released); copying components into each app (copies drift, every fix made twice).</p>
+<p class="small"><b>In Part B:</b> the code follows these rules: <code>domain/</code> imports only itself, <code>scene/</code> and <code>ui/</code> never import each other, and all 47 tests run in Node without a browser. A lint rule to enforce them is the next step.</p>
+<h3 style="break-before: page; margin-top: 0">3.5 Why this structure, and why not micro-frontends</h3>
+<p>The brief asks for two products that <b>share a design system</b> but <b>release on their own schedules</b>. That is a code-sharing problem, not a problem of many teams composing one page. So we share code <b>at build time</b> through versioned packages, and each surface ships as one tested app. Micro-frontends (Module Federation) share code <b>at run time</b> instead; here that costs more than it gives.</p>
+<table>
+  <tr><th style="width:17%">Concern</th><th style="width:41%">Our structure: monorepo + versioned packages</th><th>Micro-frontends: Module Federation</th></tr>
+  <tr><td>Independent releases</td><td>Yes: each app pins package versions and opts in (Section 3.2)</td><td>Yes, but a remote's release changes a live app that never tested it</td></tr>
+  <tr><td>Safety</td><td>What CI tested is exactly what ships</td><td>Version skew at run time: host and remote can disagree on React, the design system or a contract, and it shows up in production</td></tr>
+  <tr><td>Load time on the VPN</td><td>One optimised bundle per route; shared code tree-shaken at build time</td><td>Extra manifest and remote-entry requests (about 150 ms each on the VPN); shared libraries are de-duplicated only when versions match</td></tr>
+  <tr><td>The 3D editor</td><td>Its own app in an iframe: own memory, own crashes (Section 7.1)</td><td>Runs in the host's page: up to 1 GB and WebGL failures shared with the host's app</td></tr>
+  <tr><td>Team fit</td><td>One frontend team; ownership by folder, tags and CODEOWNERS</td><td>Pays off when many teams own parts of one page and must deploy without coordinating; not the case here</td></tr>
+  <tr><td>Types and debugging</td><td>One type check across packages; one build and one set of source maps per app</td><td>Types across remotes need extra tooling; one error can span several deployments</td></tr>
+</table>
+<p class="small"><b>The trade-offs we accept:</b> a shared change needs a package release and an opt-in per app (minutes with changesets); one repository needs good CI caching (Nx affected) to stay fast. <b>When we would revisit:</b> if several independent teams later own separate areas of the procurement workspace. Module Federation stays only as the <b>embedding fallback</b> for hosts that forbid iframes (Section 7.1), where the typed host contract limits the coupling.</p>
+<p class="small"><b>Also rejected:</b> separate repositories (versions drift; cross-cutting changes need several pull requests); one app for both surfaces (one release train, and the host would load procurement code); copying components into each app (copies drift; every fix made twice).</p>
+
+<section class="sheet wide">
+  <h2 style="font-size:13pt">Build and release</h2>
+  <img src="build-release.svg" alt="Build and release: app release (pull request, CI checks, quality gates, build, staging, production), shared package release (changeset, library checks, publish, upgrade pull requests, app takes it), 3D asset release (export, clean, LODs, compress, budget check, publish), with safe rollout, monitoring and rollback">
+</section>
 
 <h2><span class="num">4</span>State and data</h2>
-<p class="lead">Server state and caching, optimistic updates, autosave and drafts on long forms, live updates over WebSocket, and behaviour on a flaky VPN.</p>
+<p class="lead">Server state and caching, optimistic updates, autosave and drafts on long forms, live updates over WebSocket, behaviour on a flaky VPN, the role-based home and dashboards.</p>
 <h3>4.1 Each kind of state has one home</h3>
 <table>
   <tr><th style="width:19%">Kind</th><th style="width:33%">Examples</th><th style="width:20%">Lives in</th><th>Why</th></tr>
   <tr><td>Server state</td><td>Tasks, suppliers, RFQs, quotes, approvals</td><td>TanStack Query</td><td>Caching, deduplication, retries, offline pause and optimistic rollback built in</td></tr>
-  <tr><td>Grid rows</td><td>Blocks of the 50,000 / 200,000-row grids</td><td>AG Grid SSRM cache</td><td>Block cache designed for very large server-side datasets (§5)</td></tr>
-  <tr><td>Layout document</td><td>Placed items, history, selection, AI proposal</td><td>Zustand store (Surface 2)</td><td>Edited at 60 fps; the 3D view and panels must share one copy (§8)</td></tr>
+  <tr><td>Grid rows</td><td>Blocks of the 50,000 / 200,000-row grids</td><td>AG Grid SSRM cache</td><td>Block cache designed for very large server-side datasets (Section 5)</td></tr>
+  <tr><td>Layout document</td><td>Placed items, history, selection, AI proposal</td><td>Zustand store (Surface 2)</td><td>Edited at 60 fps; the 3D view and panels must share one copy (Section 8)</td></tr>
   <tr><td>URL state</td><td>Filters, sort, view, selected task, wizard step</td><td>TanStack Router search params</td><td>Bookmarkable, shareable, survives reloads; typed</td></tr>
   <tr><td>UI state</td><td>Open panels, row selection, density</td><td>Zustand</td><td>Small, no provider, selective re-renders</td></tr>
   <tr><td>Drafts</td><td>Unsaved form input</td><td>IndexedDB + server drafts</td><td>Survives tab crashes, VPN drops and device changes</td></tr>
@@ -258,6 +273,7 @@
   <li><b>Freshness per kind of data:</b> reference data is fresh for 24 h, lists for 30 s; the open record revalidates on focus and reconnect.</li>
   <li><b>Screen-shaped endpoints:</b> the BFF serves the home page in one call, saving three VPN round trips on the most important screen.</li>
   <li><b>Bounded memory:</b> unused queries are collected after 5 minutes; the persisted cache (inbox and home only) is cleared at sign-out and never used on shared VDI profiles.</li>
+  <li><b>Several tabs:</b> sign-out, language and draft changes reach every open tab through <code>BroadcastChannel</code>; each tab keeps its own WebSocket and cache.</li>
 </ul>
 <h3>4.3 Optimistic updates, done safely</h3>
 <pre>Approve task  →  remove it from the cached list immediately          (feels instant)
@@ -289,17 +305,41 @@
 <table>
   <tr><th style="width:16%">State</th><th style="width:26%">Detected by</th><th>What the user sees and what the app does</th></tr>
   <tr><td>Degraded</td><td>Requests over 3 s, heartbeat late</td><td>"Slow connection" chip; skeletons; non-urgent prefetching and 3D LOD refinement paused</td></tr>
-  <tr><td>Offline</td><td>Heartbeat lost, failed requests</td><td>Banner "You're offline. Changes are saved on this device." Cached screens stay readable; drafts, comments and 3D edits queue; <b>approvals and awards are disabled</b></td></tr>
+  <tr><td>Offline</td><td>Heartbeat lost, failed requests</td><td>Banner "You're offline. Changes are saved on this device." Cached screens stay readable; drafts, comments and 3D edits queue in IndexedDB, so closing the tab loses nothing; <b>approvals and awards are disabled</b></td></tr>
   <tr><td>Reconnected</td><td>Heartbeat resumes</td><td>Queued writes are sent in order with their idempotency keys; the WebSocket resumes from the last <code>seq</code>; the active screen refetches</td></tr>
 </table>
+
+<h3 style="break-before: page; margin-top: 0">4.7 Role-based home and permissions</h3>
+<p>Buyers, suppliers and approvers each start on their own home page and see only the pages they can use. One build serves every role; the role decides what is shown, and the server decides what is allowed.</p>
+<table>
+  <tr><th style="width:19%">Role (wireframe)</th><th style="width:47%">Home shows</th><th>Menu</th></tr>
+  <tr><td>Buyer (01)</td><td>My tasks, KPI tiles, expiring certificates, live activity, RFQs in progress</td><td>Home, Inbox, Suppliers, Documents, RFQs, Approvals, Dashboards</td></tr>
+  <tr><td>Supplier (04, 08)</td><td>Onboarding progress, documents to upload, quote invitations</td><td>Home, Inbox, My company, Documents, RFQs &amp; quotes</td></tr>
+  <tr><td>Finance approver (06)</td><td>Approvals waiting, budget use</td><td>Home, Inbox, Approvals, Reports</td></tr>
+</table>
+<ul>
+  <li><b>Where roles come from:</b> the BFF session (company OIDC sign-in) returns the user's roles and permissions in <code>GET /me</code> at start-up; a role change arrives as a WebSocket event and the shell reloads them.</li>
+  <li><b>The home is composed per role:</b> the server returns the role's widget list, and <code>GET /home</code> brings the first data for every widget in one call (Section 4.2), so it is the 2.5 s "first useful screen" (Section 11.1). Each widget is a lazy module with its own query, skeleton and error boundary, so one slow widget never blocks the page.</li>
+  <li><b>Menus and routes follow permissions:</b> every route and menu item declares the permission it needs; the shell hides the rest, and a direct link to a forbidden page shows "You don't have access" instead of loading it. A user with two roles (a buyer who also approves) gets both sets.</li>
+  <li><b>The server is the authority:</b> hiding is for clarity only. Every API call is checked on the server, and fields a role may not see never reach the browser (Section 5.1).</li>
+</ul>
+
+<h3>4.8 Dashboards</h3>
+<ul>
+  <li><b>Totals come from the server:</b> each widget calls <code>GET /dashboards/{id}/widgets/{widget}</code> with the dashboard filters from the URL; the browser never loads 50,000 rows to draw a chart.</li>
+  <li><b>Charts:</b> Apache ECharts (canvas, fast with many points), loaded only on dashboard routes (D14) and themed from our tokens; axis dates, numbers and currencies use <code>Intl</code> for the viewer's locale.</li>
+  <li><b>Freshness:</b> widgets refresh on a <code>metrics.updated</code> WebSocket event, or every 5 minutes, one request per widget.</li>
+  <li><b>Drill-down:</b> clicking a bar or a KPI tile opens the grid with that filter (wireframe 01).</li>
+  <li><b>Accessible:</b> each chart has a title, a one-sentence summary and a "View as table" twin with the same data; series are told apart by labels and patterns, not colour alone.</li>
+</ul>
 
 <h2><span class="num">5</span>Grids and forms</h2>
 <p class="lead">Virtualised grids with saved views, bulk actions and server-side filtering; multi-step forms with validation, autosave and resume.</p>
 <h3>5.1 Large grids: suppliers (50,000) and documents (200,000)</h3>
-<p><b>AG Grid Enterprise, server-side row model</b>, themed entirely with our CSS variables.</p>
+<p><b>AG Grid Enterprise, server-side row model</b>, themed with our CSS variables. The server leaves out fields a role may not see (e.g. bank details).</p>
 <pre>POST /grids/suppliers/rows
 { startRow: 200, endRow: 300, sort: [{ col: "certExpiry", dir: "asc" }],
-  filter: { country: ["IN"], certStatus: ["EXPIRING"] }, search: "brake", viewId: "v-81" }
+  filter: { country: ["IN"], status: ["ACTIVE"] }, search: "brake", viewId: "v-81" }
 → { rows: [ …100 rows… ], rowCount: 1284 }</pre>
 <table>
   <tr><th style="width:22%">Concern</th><th>Approach</th></tr>
@@ -317,7 +357,7 @@
   <tr><td>Structure</td><td>The wizard is configuration: each step has fields and a <b>Zod schema</b>; country rules (e.g. the Vietnamese tax code length) come from the server</td></tr>
   <tr><td>Performance</td><td><b>React Hook Form</b> keeps inputs uncontrolled, so a 60-field step does not re-render per keystroke</td></tr>
   <tr><td>Validation</td><td>On blur, then on change once in error; the whole step on "Next"; the server validates again and returns error codes mapped to fields</td></tr>
-  <tr><td>Autosave and resume</td><td>As §4.4</td></tr>
+  <tr><td>Autosave and resume</td><td>As Section 4.4</td></tr>
   <tr><td>Uploads</td><td>Chunked, resumable uploads to pre-signed URLs; virus-scan status arrives as an event</td></tr>
   <tr><td>Accessibility</td><td>Labels on every field, errors linked with <code>aria-describedby</code>, an error summary with links, focus to the first error, step changes announced</td></tr>
 </table>
@@ -327,7 +367,7 @@
 <h3>6.1 One build, three languages</h3>
 <table>
   <tr><th style="width:22%">Part</th><th>Approach</th></tr>
-  <tr><td>Choosing the language</td><td>Surface 1: saved profile → browser → English. Surface 2: the <b>host's locale</b> from the context hand-off (§7.2), so the editor always matches the host page</td></tr>
+  <tr><td>Choosing the language</td><td>Surface 1: saved profile → browser → English. Surface 2: the <b>host's locale</b> from the context hand-off (Section 7.2), so the editor always matches the host page</td></tr>
   <tr><td>Translations</td><td>JSON per language and namespace, ICU message format, hashed on the CDN; only the active language and open screen are downloaded (5–20 KB each)</td></tr>
   <tr><td>Switching</td><td>At runtime with no reload: load files, re-render, set <code>&lt;html lang&gt;</code>, switch formatters (Part B does this for EN/VI)</td></tr>
   <tr><td>Safety</td><td>Typed keys fail the build when missing; hard-coded strings are a lint error; a missing translation falls back to English and is reported</td></tr>
@@ -338,11 +378,15 @@
 <div class="grid2">
   <div class="card"><h4>Text expansion</h4><p class="small">Vietnamese runs about 30–40% longer than English. No fixed widths; buttons and tabs grow, labels wrap, grid cells truncate with a tooltip. A pseudo-locale in CI screenshots catches overflow and untranslated text.</p></div>
   <div class="card"><h4>CJK line breaking</h4><p class="small">Under <code>:lang(zh-CN)</code>: <code>line-break: strict</code> (no line starts with 。or ，), <code>word-break: normal</code>, <code>overflow-wrap: anywhere</code> for long part codes, no fake italics. Noto Sans SC loads only for Chinese, subset, with <code>font-display: swap</code>.</p></div>
+  <div class="card"><h4>Typing with an input method</h4><p class="small">Chinese pinyin and Vietnamese tone-mark input compose text before it is committed. Search-as-you-type, shortcuts and Enter ignore keys while <code>isComposing</code> and act on <code>compositionend</code>, so half-typed text is never searched or submitted.</p></div>
+  <div class="card"><h4>Typing numbers</h4><p class="small">Number and currency fields parse input in the user's locale ("1.840.000,50" in Vietnamese means 1,840,000.50) and also accept plain digits; the formatted value shows on blur, so a separator can never change an amount.</p></div>
 </div>
 <table>
   <tr><th>Same value</th><th>English (India)</th><th>Vietnamese</th><th>Chinese</th></tr>
   <tr><td>Amount, INR quote</td><td>₹18,40,000.00</td><td>1.840.000,00&nbsp;₹</td><td>₹1,840,000.00</td></tr>
   <tr><td>Amount, VND quote</td><td>₫1,25,00,00,000</td><td>1.250.000.000&nbsp;₫</td><td>₫1,250,000,000</td></tr>
+  <tr><td>Amount, CNY quote</td><td>CN¥1,56,400.00</td><td>156.400,00&nbsp;CN¥</td><td>¥156,400.00</td></tr>
+  <tr><td>Amount, USD quote</td><td>$22,150.00</td><td>22.150,00&nbsp;US$</td><td>US$22,150.00</td></tr>
   <tr><td>Date</td><td>17 Oct 2026</td><td>17 thg 10, 2026</td><td>2026年10月17日</td></tr>
   <tr><td>Distance in the 3D editor</td><td>0.5 m</td><td>0,5 m</td><td>0.5 m</td></tr>
 </table>
@@ -354,21 +398,22 @@
   <li><b>One announcer</b> (a polite live region) for asynchronous events: "Draft saved", "New task", "Undone: move D-01".</li>
   <li><b>Never colour alone:</b> statuses carry text or an icon; violating 3D items are red <i>and</i> listed with a warning icon and a message.</li>
   <li><b>The 3D view has a text twin:</b> the placed-items list, properties and rule-check panels expose the whole scene to a screen reader.</li>
+  <li><b>Motion, contrast and zoom:</b> <code>prefers-reduced-motion</code> turns off animations (Part B does this) and makes camera moves jump; <code>forced-colors</code> keeps borders and focus visible; every screen works at 200% zoom and reflows at 320 px.</li>
   <li><b>Tested continuously:</b> axe fails the build; keyboard paths below are scripted in Playwright; NVDA + Edge and TalkBack checks before each release.</li>
 </ul>
 <h3>6.4 Keyboard and screen-reader paths for the main flows</h3>
 <h4>Flow 1 · Approve a task from the inbox (buyer or approver)</h4>
 <table>
   <tr><th style="width:30%">Keys</th><th>Screen reader says</th></tr>
-  <tr><td>Open inbox</td><td>"Inbox, 12 open tasks, 3 due today."</td></tr>
-  <tr><td><code>Tab</code> into the list, <code>↓</code> / <code>↑</code></td><td>"Approve RFQ-2041, brake pads. Approval, due today. 2 of 12."</td></tr>
-  <tr><td><code>Enter</code></td><td>Detail opens, focus on its heading: "Recommended supplier Bharat Brakes, 18 lakh 40 thousand rupees."</td></tr>
-  <tr><td><code>Tab</code> to Approve, <code>Enter</code></td><td>"Approved. Next task: Submit audit response." Focus moves to the next task.</td></tr>
+  <tr><td>Open inbox</td><td>"Inbox, 12 open tasks, 2 due today, 1 overdue."</td></tr>
+  <tr><td><code>Tab</code> into the list, <code>↓</code> / <code>↑</code></td><td>"Approve RFQ-2039, gaskets and seals. Approval, 1 day overdue. 1 of 12."</td></tr>
+  <tr><td><code>Enter</code></td><td>Detail opens, focus on its heading: "Recommended supplier Delta Seals, 6 lakh 72 thousand rupees."</td></tr>
+  <tr><td><code>Tab</code> to Approve, <code>Enter</code></td><td>"Approved. Next task: Answer supplier question, RFQ-2040." Focus moves to the next task.</td></tr>
 </table>
 <h4>Flow 2 · Find suppliers and request documents in bulk (buyer)</h4>
 <table>
   <tr><th style="width:30%">Keys</th><th>Screen reader says</th></tr>
-  <tr><td>View menu, arrows, <code>Enter</code></td><td>"View: Expiring certificates, India. 1,284 suppliers."</td></tr>
+  <tr><td>View menu, arrows, <code>Enter</code></td><td>"View: Active suppliers, India. 1,284 suppliers."</td></tr>
   <tr><td>Arrows between grid cells</td><td>"Bharat Brakes Limited. Certificate expiry, 5 November 2026. Row 1 of 1,284."</td></tr>
   <tr><td><code>Space</code>, or "Select all matching"</td><td>"All 1,284 matching selected."</td></tr>
   <tr><td>Request documents, confirm</td><td>"Request sent. Job running." Later: "Job finished. 1,281 sent, 3 failed."</td></tr>
@@ -426,7 +471,7 @@
   <tr><td>App → host</td><td><code>app:navigate</code></td><td><b>Navigation</b> outside the editor, e.g. "open product datasheet"; the host owns the URL</td></tr>
   <tr><td>Host → app</td><td><code>host:navigate</code></td><td>Open a layout or select an item (deep link)</td></tr>
   <tr><td>App → host</td><td><code>app:dirty</code></td><td>Unsaved changes exist, so the host can confirm before leaving</td></tr>
-  <tr><td>App → host</td><td><code>app:error</code></td><td><b>Errors</b> as codes with a <code>recoverable</code> flag (§7.4)</td></tr>
+  <tr><td>App → host</td><td><code>app:error</code></td><td><b>Errors</b> as codes with a <code>recoverable</code> flag (Section 7.4)</td></tr>
 </table>
 <pre>Host page                                   Configurator (iframe)
   │ creates &lt;iframe src="https://configurator…/v2.3/"&gt;  │ renders shell + floor skeleton
@@ -441,7 +486,8 @@
 <ul>
   <li>The host owns sign-in (OIDC). The editor never sees a password and never runs its own login.</li>
   <li>The access token is <b>short-lived (≈ 15 min), audience-scoped to the Configurator API</b>, kept <b>in memory only</b>: never in the URL, storage or logs.</li>
-  <li>On a 401 the API client pauses its queue, requests a token, and replays; a second failure sends <code>app:error AUTH_FAILED</code> so the host can re-authenticate.</li>
+  <li>On a 401 the API client pauses its queue, requests a token, and replays; a second failure sends <code>app:error AUTH_FAILED</code> so the host can re-authenticate. Only <b>one refresh runs at a time</b>; other failed calls wait for it.</li>
+  <li><b>The WebSocket:</b> browsers cannot add an <code>Authorization</code> header to it, and the token never goes in a URL. So <code>POST /ws-ticket</code> (with the bearer token) returns a <b>single-use ticket valid for 30 s</b> that opens the socket. After each refresh the new token is sent over the open socket; otherwise the server closes it when the token expires.</li>
   <li>The Configurator API validates issuer, audience, expiry and signature on every call; the browser is never trusted for permissions.</li>
 </ul>
 <h3>7.4 Resize, navigation and errors</h3>
@@ -449,6 +495,7 @@
   <tr><th style="width:18%">Concern</th><th>Approach</th></tr>
   <tr><td>Resize</td><td>Default: the host gives the frame a full panel and the editor fills it, adapting its layout. Optional: a <code>ResizeObserver</code> reports content height (throttled to one message per frame). Dialogs and menus are designed to stay inside the frame; full screen uses <code>allow="fullscreen"</code>.</td></tr>
   <tr><td>Navigation</td><td>Inside the editor: an in-memory router, not the host's URL. Leaving the editor: <code>app:navigate</code>, and the host decides. Deep links arrive in <code>host:init</code> or <code>host:navigate</code>.</td></tr>
+  <tr><td>Keyboard focus</td><td><code>Tab</code> moves in and out of the frame in page order, never trapped; the frame has a title</td></tr>
   <tr><td>Errors</td><td><code>HOST_TIMEOUT</code>, <code>AUTH_FAILED</code>, <code>LAYOUT_NOT_FOUND</code>, <code>WEBGL_UNAVAILABLE</code> (the editor falls back to its list and BOM view), <code>ASSET_LOAD_FAILED</code> (retry with backoff). Each side shows the code in its own language and style.</td></tr>
 </table>
 <h3>7.5 Origin checks</h3>
@@ -461,13 +508,13 @@ addEventListener('message', (e) =&gt; {
   if (!msg.success || msg.data.protocol !== 'cwx-embed') return;
   handle(msg.data);
 });
-window.parent.postMessage(message, hostOrigin);             // never '*', so the token cannot leak</pre>
-<p class="small">The host applies the same three checks to messages from the iframe. Exact origin comparison (not "contains hostcorp"), and the allowed list comes from runtime configuration so each environment (test host, staging, production) has its own.</p>
+window.parent.postMessage(message, hostOrigin);             // never '*'; protects the token</pre>
+<p class="small">The host applies the same three checks to messages from the iframe. Origins are compared exactly (not "contains hostcorp"), against a runtime allow-list per environment.</p>
 <h3>7.6 CSP and cookie constraints</h3>
 <pre>Content-Security-Policy:
-  frame-ancestors https://select.hostcorp.com;          only the host may embed us (no clickjacking)
+  frame-ancestors https://select.hostcorp.com;          approved hosts only (Section 7.5)
   default-src 'self';
-  script-src 'self' 'wasm-unsafe-eval';                 Meshopt and KTX2 decoders are WebAssembly
+  script-src 'self' 'wasm-unsafe-eval';                 Meshopt and KTX2 decoders (WASM)
   worker-src 'self' blob:;                              decoders run in web workers
   connect-src 'self' https://api.configurator… wss://live.configurator… https://*.ingest.sentry.io;
   img-src 'self' blob: data: https://assets.configurator…;
@@ -475,30 +522,31 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
   style-src 'self';</pre>
 <ul>
   <li><b>On the host:</b> <code>frame-src https://configurator…</code>, and the iframe with <code>sandbox="allow-scripts allow-same-origin allow-forms allow-downloads"</code>, <code>allow="fullscreen; clipboard-write"</code> and a <code>title</code> for screen readers.</li>
-  <li><b>Cookies:</b> inside another company's page our cookies are third-party, and Chrome/Edge restrict them. The design <b>uses no cookies for auth</b>: the bearer token from the host. If a cookie is ever needed: <code>SameSite=None; Secure; Partitioned</code> (CHIPS), or serve the editor from a host subdomain to make it same-site.</li>
-  <li><b>Storage is partitioned</b> per host as well, which is fine: the Cache API and IndexedDB still cache models and the manifest, just separately for each host.</li>
+  <li><b>Cookies:</b> in another company's page ours are third-party and Chrome/Edge restrict them, so we <b>use no cookies for auth</b>, only the host's bearer token. If one is ever needed: <code>SameSite=None; Secure; Partitioned</code> (CHIPS), or a host subdomain.</li>
+  <li><b>Storage is partitioned</b> per host too; the Cache API and IndexedDB still cache models, separately per host.</li>
 </ul>
 <h3>7.7 Matching the host design language</h3>
 <pre>host:init → theme: { "color-primary": "#c8102e", "font-family": "Host Sans",
                      "radius": "2px", "density": "compact", "mode": "light" }</pre>
 <ol class="flow">
-  <li>The theme adapter <b>validates</b> each value (real colours, known lengths, an allowed font list), so a host cannot inject arbitrary CSS.</li>
-  <li>It maps them onto our <b>brand and semantic tokens</b> (§3.3); every component re-styles at once, with no code change.</li>
-  <li>It checks <b>contrast</b>: if the host's colour fails WCAG AA on our surfaces, it uses the nearest passing shade.</li>
+  <li>The theme adapter <b>validates</b> each value (colours, lengths, allowed fonts), so a host cannot inject CSS.</li>
+  <li>It maps them onto our <b>brand and semantic tokens</b> (Section 3.3); every component re-styles at once.</li>
+  <li>It checks <b>contrast</b>: a host colour that fails WCAG AA gets the nearest passing shade.</li>
   <li>Missing values fall back to our defaults; <code>host:theme</code> applies changes live (e.g. dark mode).</li>
 </ol>
 <p class="small">The host controls colour, font, radius, density and mode. We keep the editor's layout, the 3D visuals and accessibility.</p>
 
 <h2><span class="num">8</span>The 3D editing workspace</h2>
-<p class="lead">Scene structure, selection and transform editing, snapping, undo and redo, showing rule violations, and keeping the 3D view in sync with the list and property panels. This section describes what Part B implements, then how it scales to 2,000 items.</p>
+<p class="lead">Scene structure, selection and transform editing, snapping, undo and redo, showing rule violations, keeping the 3D view in sync with the list and property panels, and wiring. This section describes what Part B implements, then how it scales to 2,000 items.</p>
 <h3>8.1 Scene structure</h3>
-<pre>&lt;Canvas&gt;                                    React Three Fiber, rendered on demand
+<pre>&lt;Canvas&gt;                                    React Three Fiber, rendered on demand*
 ├─ Static       floor plane · 0.5 m grid · walls                    a handful of draw calls
 ├─ Items        one InstancedMesh per model × material × LOD         per-instance matrix + status colour
-├─ Overlays     selection outline · 0.6 m clearance zone · violation links · AI ghost layer
+├─ Overlays     selection outline · 0.6 m clearance zone · violation links* · AI ghost layer*
 │               (never raycast, so clicks always reach the floor and items)
 ├─ Labels       HTML label for the selected item only
 └─ Camera       orbit / pan / zoom, fitted to the room on resize</pre>
+<p class="small">* Design only, not in Part B; Part B renders every frame so its fps readout keeps measuring. Part B builds the rest with one InstancedMesh per part per item type, without LODs.</p>
 <p>The domain works in metres from the room's north-west corner; the scene converts to centred world coordinates. The layout is the single source of truth: <b>the scene is a pure function of the store</b>, so nothing in three.js has to be kept in sync by hand.</p>
 <h3>8.2 Selection and transform editing</h3>
 <ul>
@@ -507,7 +555,7 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
   <li><b>Rotate:</b> 90° steps (<code>R</code>), re-snapped so the turned footprint stays on the grid and on the floor.</li>
   <li><b>Properties:</b> position (as the north-west corner, always a clean grid value), rotation and label; edits commit on Enter or blur, one undo step each.</li>
   <li><b>Multi-select, copy and paste:</b> the selection is a list with a primary item (Ctrl/Shift-click, list ranges, Ctrl+A). Group move, rotate, delete, cut and paste are each <b>one batch command</b>; moves are clamped for the group as a whole, so a group stops at a wall instead of being squashed against it. Pasted copies get the next labels and become the selection.</li>
-  <li><b>Keyboard:</b> list navigation, <code>R</code>, <code>Delete</code>, <code>Ctrl+Z/Y</code>; arrow keys nudge one cell (§6.4).</li>
+  <li><b>Keyboard:</b> list navigation, <code>R</code>, <code>Delete</code>, <code>Ctrl+Z/Y</code>; arrow keys nudge one cell (Section 6.4).</li>
 </ul>
 <h3>8.3 Snapping to the grid</h3>
 <p>The north-west corner of the rotated footprint snaps to the nearest 0.5 m line and is clamped so the whole footprint stays on the 20 × 12 m floor. A quarter turn swaps width and depth before snapping. Floating-point noise is rounded at millimetre precision. Unit-tested in Part B.</p>
@@ -530,6 +578,18 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 </ul>
 <h3>8.6 Keeping the 3D view, list and properties in sync</h3>
 <p>One Zustand store holds the layout, the selection and any AI proposal. The 3D view, the placed-items list, the properties panel and the rule panel are all <b>readers of the same store</b>, and selection is a store field, so selecting in the list highlights in 3D and the list scrolls to an item picked in 3D. Derived data (violations, BOM) is computed once per layout change and shared. At 2,000 rows the list is virtualised (TanStack Virtual); Part B's 500 rows use <code>content-visibility</code>.</p>
+
+<h3>8.7 Wiring</h3>
+<p>Engineers connect equipment with cables, e.g. a drive's motor output to a cabinet. Design only; not in Part B.</p>
+<table>
+  <tr><th style="width:19%">Concern</th><th>Approach</th></tr>
+  <tr><td>Model</td><td>Each catalogue model declares its <b>ports</b> (position on the footprint, power or control, rating). A wire is <code>{ id, from: { itemId, port }, to: { itemId, port }, cableType }</code>, stored in the same layout document as the items.</td></tr>
+  <tr><td>Editing</td><td>Click a port, then a compatible one (<code>Esc</code> cancels), or use "Connect to…" in the properties panel, which also lists each item's wires for screen readers. Wire edits are <b>commands</b>, so undo and redo work as for any edit (Section 8.4).</td></tr>
+  <tr><td>Routing</td><td>Orthogonal routes along the grid, like cable trays. Moving an item re-routes its wires live and commits once, with the move; deleting an item removes its wires in the same batch.</td></tr>
+  <tr><td>Rules</td><td>In the same rule panel as the clearance check: a required port left unconnected, incompatible ports, and a cable longer than its type allows ("D-03 → C-01: 34 m, limit 30 m").</td></tr>
+  <tr><td>Bill of materials</td><td>Cable metres per type, counted from the scene like the equipment.</td></tr>
+  <tr><td>Drawing</td><td>All wires in one line or instanced-tube mesh, rebuilt only when wires change: one or two draw calls, whatever their number.</td></tr>
+</table>
 
 <h2><span class="num">9</span>3D asset optimisation</h2>
 <p class="lead">From a raw 40 MB CAD export to a web-ready model: simplification and levels of detail, Meshopt compression, KTX2 textures, instancing, culling, lazy loading and caching, with target numbers per model and per scene.</p>
@@ -586,16 +646,17 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 3  WS   assistant.done   { runId, sources, proposal? }
    Stop → POST /assistant/runs/{runId}/cancel                          REST</pre>
 <ul>
-  <li><b>Only REST and the existing WebSocket</b>, the two channels the brief fixes; reconnect and replay (§4.5) also protect a reply in progress.</li>
+  <li><b>Only REST and the existing WebSocket</b>, the two channels the brief fixes; reconnect and replay (Section 4.5) also protect a reply in progress.</li>
   <li>Tokens render as they arrive; the finished reply, not each token, goes to the live region.</li>
-  <li>The client sends <b>references</b> (screen, layout id and version, selection, violation ids), never data; the server resolves them with the user's own permissions. Content is treated as data, not instructions; the LLM is called only server-side.</li>
+  <li>The client sends <b>references</b> (screen, layout id and version, selection, violation ids), never data; the server resolves them with the user's permissions and alone calls the LLM. Content is data, not instructions.</li>
+  <li><b>Limits and failures:</b> per-user rate and time limits; a broken stream keeps its partial reply ("Incomplete · Retry"); proposals are logged for audit.</li>
 </ul>
 <h3>10.2 A proposal is a set of commands</h3>
 <pre>proposal: { layoutVersion: 41,
             summary: "Move C-03 0.5 m east to clear D-07",
             changes: [ { op: "move", itemId: "c03", x: 4.9, z: 2.3 } ],
             resolves: [ "c03|d07" ] }</pre>
-<p>The agent never edits the layout. It returns the same operations the editor already understands (§8.4), so the client can validate them with its own rules and the user stays in control. In Surface 1 the same pattern previews proposed actions (for example a document request to 2 suppliers) and confirms them through the normal REST command with the user's own permissions.</p>
+<p>The agent never edits the layout. It returns the same operations the editor already understands (Section 8.4), so the client can validate them with its own rules and the user stays in control. In Surface 1 the same pattern previews proposed actions (for example a document request to 2 suppliers) and confirms them through the normal REST command with the user's own permissions.</p>
 <h3>10.3 Preview, accept, undo</h3>
 <table>
   <tr><th style="width:16%">Step</th><th>Behaviour</th></tr>
@@ -609,30 +670,30 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 <h2><span class="num">11</span>Performance and quality</h2>
 <p class="lead">How the budgets are met, how they are measured in CI and in the field, error reporting, and the testing strategy.</p>
 <h3>11.1 The 2.5 s first useful screen (Surface 1)</h3>
-<p class="small">Assumptions: 10 Mbps (1.25 MB/s), 150 ms round trips over VPN, a mid-range 4-core laptop CPU. "First useful screen" is the role's home with its task list interactive.</p>
+<p class="small">Assumptions: 10 Mbps, 150 ms round trips over VPN, a mid-range 4-core CPU. "First useful screen": the role's home with its task list interactive.</p>
 <table>
   <tr><th>Step</th><th>Budget</th><th>How</th></tr>
   <tr><td>DNS + TCP + TLS 1.3</td><td>0.45 s</td><td>3 round trips; one origin for app and BFF</td></tr>
-  <tr><td>HTML</td><td>0.15 s</td><td>2 KB shell; preloads critical files; <b>starts the home-data request inline</b></td></tr>
+  <tr><td>HTML</td><td>0.15 s</td><td>2 KB shell; preloads critical files; <b>starts the home-data request inline</b> (0.4 s, overlapping the steps below)</td></tr>
   <tr><td>Critical resources</td><td>0.35 s</td><td>≤ 170 KB JS + 25 KB CSS + 10 KB locale + 30 KB font subset, compressed</td></tr>
   <tr><td>Parse and run JS</td><td>0.35 s</td><td>Route-split bundles; grids, charts and the assistant load when used</td></tr>
-  <tr><td>Home data</td><td>0.40 s</td><td>One aggregated BFF call, overlapping the steps above</td></tr>
   <tr><td>Render</td><td>0.10 s</td><td>Skeletons first; no layout shift</td></tr>
-  <tr><th>First visit</th><th>≈ 1.9 s</th><th>0.6 s margin for VDI. Repeat visits load the shell from the service worker: ≈ 1.0 s</th></tr>
+  <tr><td>Server time and contention</td><td>0.50 s</td><td>BFF and backend processing, a busy VPN</td></tr>
+  <tr><th>First visit</th><th>≈ 1.9 s</th><th>0.6 s margin for VDI; repeat visits ≈ 1.0 s (service worker)</th></tr>
 </table>
 <p><b>Surface 2</b> follows the same idea: the panels load first and the 3D code after. In Part B the first download is <b>≈ 34 KB gzipped</b>; three.js and React Three Fiber (≈ 282 KB) load lazily, and LOD2 models (≈ 0.8 MB) make the room visible within a second after that.</p>
 <h3>11.2 The 3D frame budget (Surface 2)</h3>
 <table>
   <tr><th style="width:30%">Budget (from the brief)</th><th style="width:22%">Design target</th><th>How</th></tr>
   <tr><td>≥ 50 fps at 1080p on integrated graphics</td><td>≤ 20 ms per frame: CPU ≤ 8 ms, GPU ≤ 10 ms</td><td>React is not in the frame loop: the store updates only on commits; drags touch one instance matrix; render on demand when idle; device pixel ratio capped at 1.25 on integrated GPUs; no real-time shadows</td></tr>
-  <tr><td>&lt; 300 draw calls</td><td>≤ 260 at 2,000 items</td><td>Instancing by model × material × LOD (§9.4)</td></tr>
+  <tr><td>&lt; 300 draw calls</td><td>≤ 260 at 2,000 items</td><td>Instancing by model × material × LOD (Section 9.4)</td></tr>
   <tr><td>&lt; 1 GB browser memory</td><td>≤ 600 MB</td><td>Compressed textures on the GPU, shared geometry, LOD eviction, bounded history</td></tr>
 </table>
 <h3>11.3 Measured in Part B</h3>
 <table>
   <tr><th>Metric</th><th>Result</th></tr>
-  <tr><td>Frame rate, 500 items</td><td><b>60 fps (16.6 ms)</b>, the display's refresh rate, at 1920 × 1080 on Intel Iris Xe integrated graphics (Core i7-1255U, 16 GB, Chrome 155), production build</td></tr>
-  <tr><td>Draw calls, 500 items</td><td>15 (9 for every item, whatever the count)</td></tr>
+  <tr><td>Frame rate</td><td><b>60 fps (16.6 ms) at 500 items, 59 fps (17.1 ms) at 2,500</b>, at 1920 × 1080 on Intel Iris Xe (Core i7-1255U, 16 GB, Chrome 155), production build</td></tr>
+  <tr><td>Draw calls</td><td>15 at 500 and at 2,500 items (9 for every item, whatever the count); 19 with an item selected</td></tr>
   <tr><td>Clearance check</td><td>4.8 ms at 2,000 items (realistic layout); 5.3 ms at 500 random overlapping items</td></tr>
   <tr><td>Generating 500 items</td><td>≈ 35 ms, one undo step</td></tr>
   <tr><td>First download</td><td>≈ 34 KB JS + 3 KB CSS gzipped; 3D code ≈ 282 KB loaded after</td></tr>
@@ -642,26 +703,26 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
   <tr><th style="width:26%">Check</th><th>What it asserts</th></tr>
   <tr><td>Bundle size limits</td><td><code>size-limit</code> per route entry and package; over budget fails the build</td></tr>
   <tr><td>Lighthouse CI</td><td>Key screens in EN, VI and 中文 on a throttled profile (10 Mbps, 150 ms, 4× CPU slowdown): LCP, a <code>first-useful</code> mark, CLS</td></tr>
-  <tr><td>3D frame time (nightly)</td><td>Playwright drives the editor on a real integrated-GPU laptop in the lab: the fixed 2,000-item test layout, a scripted camera orbit and drag; asserts p95 frame time ≤ 20 ms, draw calls ≤ 300 and heap ≤ 600 MB. Headless software rendering is not representative, so it runs on real hardware</td></tr>
-  <tr><td>Asset budgets</td><td>The asset pipeline fails a model that exceeds its triangle, size or material budget (§9.1)</td></tr>
+  <tr><td>3D frame time (nightly)</td><td>Playwright drives the editor on a real integrated-GPU laptop (headless rendering is not representative): the fixed 2,000-item layout, a scripted orbit and drag; asserts p95 frame time ≤ 20 ms, draw calls ≤ 300, heap ≤ 600 MB</td></tr>
+  <tr><td>Asset budgets</td><td>The asset pipeline fails a model that exceeds its triangle, size or material budget (Section 9.1)</td></tr>
   <tr><td>Field data</td><td>Web Vitals by route, locale and region; frame time, draw calls and memory by device class from Surface 2</td></tr>
 </table>
 <h3>11.5 Error reporting</h3>
 <ul>
   <li><b>Sentry</b> with release versions and private source maps; user ids hashed; form values and tokens scrubbed.</li>
   <li>A correlation id on every request also tags the Sentry event, linking a user's error to backend logs.</li>
-  <li>Error boundaries per route (Surface 1) and around the 3D view (Surface 2, which falls back to its panels, as in Part B); WebGL context loss is recorded and recovered by reloading GPU resources.</li>
+  <li>Error boundaries per route, and around the 3D view, which falls back to its panels (as in Part B); a lost WebGL context is recorded and recovered.</li>
   <li>Alerts on error rate, slow routes and slow frames per release.</li>
 </ul>
 <h3>11.6 Testing strategy</h3>
 <table>
   <tr><th style="width:15%">Level</th><th style="width:24%">Tools</th><th>What it covers</th></tr>
-  <tr><td>Unit</td><td>Vitest</td><td>Formatters per locale, Zod schemas, event handlers; in Surface 2 the whole domain: snapping, rules (checked against brute force), commands, history, BOM, keyboard nudging, group edits, copy and paste (Part B: 44 tests)</td></tr>
+  <tr><td>Unit</td><td>Vitest</td><td>Formatters, Zod schemas, event handlers; Surface 2's whole domain: snapping, rules (vs brute force), commands, history, BOM, nudging, group edits, paste (Part B: 47 tests)</td></tr>
   <tr><td>Component</td><td>Testing Library, Storybook, axe</td><td>Every shared component in 3 languages, light/dark and both densities</td></tr>
   <tr><td>Contract</td><td>OpenAPI types, MSW, zod</td><td>API mocks generated from the spec; the host contract tested against a test host page</td></tr>
-  <tr><td>End-to-end</td><td>Playwright</td><td>The five main flows by keyboard in 3 locales; offline and slow networks; WebSocket resume; concurrent approval; the editor embedded in the test host with token refresh</td></tr>
+  <tr><td>End-to-end</td><td>Playwright</td><td>The five main flows by keyboard in 3 locales; offline and slow networks; WebSocket resume; concurrent approval; the embedded editor with token refresh</td></tr>
   <tr><td>Visual</td><td>Playwright screenshots</td><td>Key screens in EN, VI, 中文 and a pseudo-locale; the 3D view with the fixed test layout</td></tr>
-  <tr><td>Performance</td><td>size-limit, Lighthouse CI, frame-time runs</td><td>§11.4</td></tr>
+  <tr><td>Performance</td><td>size-limit, Lighthouse CI, frame-time runs</td><td>Section 11.4</td></tr>
   <tr><td>Manual</td><td>NVDA + Edge, TalkBack</td><td>Screen-reader pass on the main flows before each release</td></tr>
 </table>
 
@@ -680,7 +741,7 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
   <tr><td>9</td><td>Assistant → domain</td><td>in memory</td><td>The client validates and snaps the change, applies it to a copy and runs the rule check: "resolves 1 issue · creates 0"</td></tr>
   <tr><td>10</td><td>Domain → 3D view</td><td>in memory</td><td><b>Preview:</b> the ghost layer shows C-03 translucent at its new place with an arrow from the old one; the real layout is unchanged</td></tr>
   <tr><td>11</td><td>Engineer → store</td><td>click / Enter</td><td><b>Accept:</b> one batch command "Assistant: move C-03" is applied; both items turn back to normal; "Done: assistant fix" is announced</td></tr>
-  <tr><td>12</td><td>Store → Configurator API</td><td>REST ⑩ · WSS ⑪</td><td>Operations sent with <code>If-Match: 41</code> → v42; the server confirms no violations. If the version had moved on, the proposal would be re-validated first (§10.3)</td></tr>
+  <tr><td>12</td><td>Store → Configurator API</td><td>REST ⑩ · WSS ⑪</td><td>Operations sent with <code>If-Match: 41</code> → v42; the server confirms no violations. If the version had moved on, the proposal would be re-validated first (Section 10.3)</td></tr>
   <tr><td>13</td><td>Engineer → store</td><td><code>Ctrl+Z</code></td><td>(Optional) one undo reverts the whole fix, sent to the server as the inverse operations</td></tr>
   <tr><td>—</td><td>Throughout</td><td>postMessage ⑨</td><td>If the token nears expiry, the host bridge refreshes it without interrupting the flow; <code>app:dirty</code> is false once v42 is saved</td></tr>
 </table>
@@ -716,6 +777,8 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
   <tr><td>D26</td><td>Textures</td><td>KTX2 (Basis)</td><td>Stays compressed on the GPU</td><td>PNG / JPEG (4–6× GPU memory)</td></tr>
   <tr><td>D27</td><td>Drawing items</td><td>InstancedMesh per model × material × LOD</td><td>Draw calls scale with distinct models</td><td>One mesh per item (2,000+ calls); one merged static mesh (rebuild per edit)</td></tr>
   <tr><td>D28</td><td>AI changes</td><td>Proposal as commands → ghost preview → one-step accept and undo</td><td>The user stays in control; the same rules validate it</td><td>Agent edits the layout directly</td></tr>
+  <tr><td>D29</td><td>Mobile</td><td>Same responsive web app</td><td>Phones need only inbox, uploads, quotes (A10); one codebase</td><td>Native app (second codebase, store reviews)</td></tr>
+  <tr><td>D30</td><td>Release</td><td>Flags + staged rollout, auto-rollback</td><td>A bad release reaches few users</td><td>Big-bang releases</td></tr>
 </table>
 
 <h2><span class="num">14</span>Assumptions</h2>
@@ -731,11 +794,12 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
   <tr><td>A8</td><td>~10 Mbps and ~150 ms round trips over VPN; WebSockets pass on port 443</td><td>If WebSockets are blocked, the active screen refetches every 30 s and says so</td></tr>
   <tr><td>A9</td><td>The LLM provider is contracted for no data retention, in an approved region</td><td>The assistant is disabled per region by feature flag</td></tr>
   <tr><td>A10</td><td>On phones, suppliers need the inbox, onboarding, uploads and quotes; grids are desktop-first</td><td>Mobile grids become read-only card lists</td></tr>
-  <tr><td>A11</td><td>The host can embed an iframe and issue an OIDC access token for the Configurator API audience</td><td>Web-component fallback (§7.1); token exchange via the host's backend</td></tr>
+  <tr><td>A11</td><td>The host can embed an iframe and issue an OIDC access token for the Configurator API audience</td><td>Web-component fallback (Section 7.1); token exchange via the host's backend</td></tr>
   <tr><td>A12</td><td>A typical room uses at most ~40 of the 300 models</td><td>Draw calls grow with distinct models; beyond ~60, merge materials into atlases or use <code>BatchedMesh</code></td></tr>
   <tr><td>A13</td><td>CAD exports are available as glTF or STEP with real units and a sensible origin</td><td>A per-vendor fix-up step in the pipeline</td></tr>
   <tr><td>A14</td><td>"Integrated graphics" means Intel Iris Xe / UHD 620 class or better</td><td>Older GPUs get a lower LOD bias and DPR 1.0 by device class</td></tr>
   <tr><td>A15</td><td>One engineer edits a layout at a time in v1; collaborators see changes live but do not co-edit</td><td>Operations already carry versions, so co-editing can rebase later</td></tr>
+  <tr><td>A16</td><td>Vietnamese and Chinese text in the wireframes is a placeholder; product strings go through professional translation</td><td>Translation review is added to each release's checklist</td></tr>
 </table>
 
 <h2><span class="num">15</span>Risks and open questions</h2>
@@ -764,15 +828,15 @@ window.parent.postMessage(message, hostOrigin);             // never '*', so the
 <p><b>Repository:</b> github.com/Pavithravignesh/3d-layout-editor (React 18, TypeScript strict, three.js via React Three Fiber, Zustand). It implements the core of Surface 2 and is where several numbers in this document come from.</p>
 <table>
   <tr><th style="width:34%">Section</th><th>Where it is in Part B</th></tr>
-  <tr><td>§8.1 Scene · §9.4 instancing</td><td><code>src/scene/</code>: floor, <code>ItemsLayer</code> (one InstancedMesh per part per type), non-raycast overlays, placement ghost</td></tr>
-  <tr><td>§8.3 Snapping · §8.4 commands · §8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash), <code>group.ts</code> (group moves, paste); 44 unit tests in total</td></tr>
-  <tr><td>§8.6 Sync</td><td><code>src/state/editorStore.ts</code>: one store read by the 3D view, list, properties and rule panel</td></tr>
-  <tr><td>§3.3 Tokens and components</td><td><code>src/design-system/</code>: a small version of <code>@cloudworx/ui</code></td></tr>
-  <tr><td>§6 Localisation and accessibility</td><td>EN/VI with <code>Intl</code> numbers; list as one Tab stop with arrow keys; live region for edits, undo and redo</td></tr>
-  <tr><td>§11 Performance</td><td>Lazy 3D chunk, vendor chunks, FPS / draw-call readout, repeatable 500-item test layout</td></tr>
+  <tr><td>Section 8.1 Scene · Section 9.4 instancing</td><td><code>src/scene/</code>: floor, <code>ItemsLayer</code> (one InstancedMesh per part per type), non-raycast overlays, placement ghost</td></tr>
+  <tr><td>Section 8.3 Snapping · Section 8.4 commands · Section 8.5 rules</td><td><code>src/domain/</code>: <code>geometry.ts</code>, <code>commands.ts</code>, <code>history.ts</code>, <code>rules.ts</code> (spatial hash), <code>group.ts</code> (group moves, paste); 47 unit tests in total</td></tr>
+  <tr><td>Section 8.6 Sync</td><td><code>src/state/editorStore.ts</code>: one store read by the 3D view, list, properties and rule panel</td></tr>
+  <tr><td>Section 3.3 Tokens and components</td><td><code>src/design-system/</code>: a small version of <code>@cloudworx/ui</code></td></tr>
+  <tr><td>Section 6 Localisation and accessibility</td><td>EN/VI with <code>Intl</code> numbers; list as one Tab stop with arrow keys; live region for edits, undo and redo</td></tr>
+  <tr><td>Section 11 Performance</td><td>Lazy 3D chunk, vendor chunks, FPS / draw-call readout, repeatable 500-item test layout</td></tr>
 </table>
 <h3>A.2 Surface 1 wireframes</h3>
-<p class="small">01 Home · 02 Task inbox · 03 Suppliers grid · 04 Onboarding (Vietnamese) · 05 RFQ comparison · 06 Approval (Chinese) · 07 AI assistant · 08 Mobile inbox. Source: <code>design/wireframes/surface-1-procurement.excalidraw</code>.</p>
+<p class="small">01 Home · 02 Task inbox · 03 Suppliers grid · 04 Onboarding (Vietnamese) · 05 RFQ comparison · 06 Approval (Chinese) · 07 AI assistant · 08 Mobile inbox. Menus follow the role (buyer, supplier, approver). Source: <code>design/wireframes/surface-1-procurement.excalidraw</code>.</p>
 <img src="wireframes-surface1.svg" alt="Overview of the eight Surface 1 wireframes" style="width:100%; border:1px solid var(--line); border-radius:6px;">
 <h3>A.3 Glossary</h3>
 <table class="small">

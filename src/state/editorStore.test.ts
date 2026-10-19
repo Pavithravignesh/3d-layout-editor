@@ -86,6 +86,26 @@ describe('multi-select', () => {
   });
 });
 
+describe('performance test layout', () => {
+  it('adds a new batch on each click, with unique ids and new positions', () => {
+    editor().loadTestLayout(500);
+    const first = items().map((i) => `${i.x},${i.z}`);
+    editor().loadTestLayout(500);
+    expect(items()).toHaveLength(1000);
+    expect(new Set(items().map((i) => i.id)).size).toBe(1000);
+    expect(new Set(items().map((i) => i.label)).size).toBe(1000);
+    expect(items().slice(500).map((i) => `${i.x},${i.z}`)).not.toEqual(first);
+  });
+
+  it('keeps ids unique after items were deleted', () => {
+    editor().loadTestLayout(10);
+    editor().select(items()[3]!.id);
+    editor().removeSelection();
+    editor().loadTestLayout(10);
+    expect(new Set(items().map((i) => i.id)).size).toBe(19);
+  });
+});
+
 describe('copy and paste', () => {
   it('pastes copies one cell down-right with new labels, as one undo step, and selects them', () => {
     threeItems();

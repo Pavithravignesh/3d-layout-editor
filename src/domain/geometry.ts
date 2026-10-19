@@ -38,8 +38,16 @@ export function snapToGrid(type: ItemTypeId, rotation: Rotation, x: number, z: n
   return { x: snapAxis(x, w, FLOOR.width), z: snapAxis(z, d, FLOOR.depth) };
 }
 
+/** The quarter turns an item can have, in order. */
+export const ROTATIONS: readonly Rotation[] = [0, 90, 180, 270];
+
+/** Narrows a number from the outside world (a select box, a file) to a valid rotation. */
+export function isRotation(value: number): value is Rotation {
+  return (ROTATIONS as readonly number[]).includes(value);
+}
+
 export function nextRotation(rotation: Rotation): Rotation {
-  return ((rotation + 90) % 360) as Rotation;
+  return ROTATIONS[(ROTATIONS.indexOf(rotation) + 1) % ROTATIONS.length]!;
 }
 
 /** Edge-to-edge distance between two footprints; 0 when they touch or overlap. */

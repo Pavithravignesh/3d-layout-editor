@@ -1,5 +1,7 @@
 # 3D Layout Editor
 
+[![CI](https://github.com/Pavithravignesh/3d-layout-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/Pavithravignesh/3d-layout-editor/actions/workflows/ci.yml)
+
 A browser-based editor for placing electrical equipment on a 20 m × 12 m room floor. Place, move, rotate and delete items on a 0.5 m grid, undo any edit, see clearance violations as you work, and read a live bill of materials in English or Vietnamese.
 
 Built with React 18, TypeScript (strict), three.js via React Three Fiber, and Zustand.
@@ -51,7 +53,7 @@ They are slower than the native tools and are not needed on a normal machine.
 | Browse the list | Tab into **Placed items**, then ↑ / ↓ / Home / End |
 | Camera | Drag to orbit, right-drag to pan, scroll to zoom |
 | Language | **EN / VI** in the top bar; numbers follow the locale (0.5 m → 0,5 m) |
-| Performance test | **Add 500 test items** in the top bar (one undo step removes them) |
+| Performance test | **Add 500 test items** in the top bar; each click adds 500 more in new positions (one undo step removes a batch) |
 
 ## What is in it
 
@@ -94,7 +96,7 @@ src/
 
 **Keyboard editing and accessibility.** Every edit works from the keyboard: select with the item list (one Tab stop, ↑ / ↓ / Home / End), move one cell with the arrow keys (Shift for 1 m), rotate with **R**, delete with **Delete**, undo and redo with **Ctrl+Z / Ctrl+Y**. A polite live region announces each edit with the result, for example "Done: move C-01. Now at 5, 2.5 m. Too close to D-01 (0.2 m)." Focus is always visible, and status is shown with text and icons as well as colour.
 
-**Item models.** The equipment is drawn from simple box primitives (body, plinth and a front panel that shows orientation); no external models or textures are used.
+**Item models.** The equipment is drawn from simple box primitives (body, plinth and a front panel that shows orientation); no external models or textures are used. Freely licensed glTF models were considered first: the Khronos glTF sample models, Poly Haven, Kenney, Quaternius, Poly Pizza and Sketchfab were searched, but none has a control cabinet, variable-speed drive and transformer. The closest matches were outdoor street utility boxes about half the height of a real cabinet, and nothing usable for a transformer. Primitives keep every footprint exactly the size the snapping and the 0.6 m rule work with, and they draw at 60 fps with 500 items. Real models would come from the asset pipeline described in the design document (levels of detail, Meshopt, KTX2, one instanced mesh per model part).
 
 ## Performance
 
@@ -103,7 +105,9 @@ Measured with **Add 500 test items** (a fixed, repeatable layout: 224 cabinets, 
 | Metric | Result |
 | --- | --- |
 | **Frame rate, 500 items** | **60 fps (16.6 ms per frame)**, the display's full refresh rate, on a Lenovo 82TS laptop: Intel Core i7-1255U, **Intel Iris Xe integrated graphics**, 16 GB RAM, Windows 11, Chrome 155, full screen at 1920 × 1080 @ 60 Hz, production build, measured while orbiting the camera for over 10 seconds. The empty scene also runs at 60 fps, so 500 items cost no measurable frame time at this refresh rate |
+| **Frame rate, 2,500 items** | **59 fps (17.1 ms per frame)**: five clicks of **Add 500 test items**, same laptop and setup. Above the brief's 2,000-item scene and its 50 fps budget |
 | Draw calls, 500 items | 15 (9 for all items + floor, grid and walls) |
+| Draw calls, 2,500 items | Still 15; 19 while an item is selected (its outline and clearance zone add 4) |
 | Generating 500 items | about 35 ms, one undo step |
 | First download (panels usable) | ≈ 34 KB gzipped JavaScript + 3 KB CSS |
 | 3D code, loaded after | ≈ 282 KB gzipped (three.js, React Three Fiber) |
@@ -116,7 +120,7 @@ How to measure: run `npm run build && npm run preview`, open the app full-screen
 npm test
 ```
 
-44 unit tests cover snapping and rotation, the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), keyboard nudging (one cell per step, nothing recorded at the floor's edge), multi-select (toggle, range, select all), group moves clamped as a unit, group delete and its undo, copy, cut and cascading paste, labels and the bill of materials.
+47 unit tests cover snapping and rotation (only quarter turns accepted from input), the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), keyboard nudging (one cell per step, nothing recorded at the floor's edge), multi-select (toggle, range, select all), group moves clamped as a unit, group delete and its undo, copy, cut and cascading paste, labels, the bill of materials, and the performance test layout (each batch adds new items with unique ids).
 
 ## Trade-offs and next steps
 

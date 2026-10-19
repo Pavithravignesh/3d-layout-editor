@@ -14,9 +14,27 @@ import { GroupOutline, PlacementGhost, SelectionMarker } from './Markers';
 
 /** A drag moves every item in `ids` by the same snapped, clamped delta from where it started. */
 type Drag = { anchor: Item; ids: ReadonlySet<string>; offsetX: number; offsetZ: number; dx: number; dz: number };
-type ControlsLike = { enabled: boolean } | null;
+type CaptureTarget = Pick<Element, 'setPointerCapture' | 'releasePointerCapture'>;
 
 const CLICK_TOLERANCE_PX = 4;
+const UPRIGHT: Rotation = 0;
+
+/**
+ * R3F types an event's target as a plain EventTarget, but gives it pointer capture at runtime,
+ * routed to the 3D object, so a fast drag keeps reaching the item it started on.
+ */
+function captureTarget(e: ThreeEvent<PointerEvent>): CaptureTarget | null {
+  return canCapture(e.target) ? e.target : null;
+}
+
+function canCapture(target: EventTarget | null): target is EventTarget & CaptureTarget {
+  return target !== null && 'setPointerCapture' in target && 'releasePointerCapture' in target;
+}
+
+/** The orbit controls, when present, can be paused while an item is dragged. */
+function isPausable(controls: unknown): controls is { enabled: boolean } {
+  return typeof controls === 'object' && controls !== null && 'enabled' in controls;
+}
 
 /**
  * Everything inside the canvas. Drags and placement previews are kept in local state and only
@@ -30,7 +48,7 @@ export function SceneContent() {
   const { select, toggleSelect, place, moveSelection, startPlacing } = useEditor.getState();
   const committedViolations = useViolations();
   const gl = useThree((s) => s.gl);
-  const controls = useThree((s) => s.controls) as unknown as ControlsLike;
+  const controls = useThree((s) => s.controls);
 
   const [drag, setDrag] = useState<Drag | null>(null);
   const [hover, setHover] = useState<{ x: number; z: number } | null>(null);
@@ -48,7 +66,7 @@ export function SceneContent() {
   const violating = useMemo(() => violatingIds(violations), [violations]);
 
   const ghost = useMemo(
-    () => (placing && hover ? { type: placing, rotation: 0 as Rotation, ...hover } : null),
+    () => (placing && hover ? { type: placing, rotation: UPRIGHT, ...hover } : null),
     [placing, hover],
   );
   const ghostConflict = useMemo(() => {
@@ -81,8 +99,8 @@ export function SceneContent() {
     if (!selected.has(item.id)) select(item.id);
     const point = floorPointFromRay(e.ray);
     if (!point) return;
-    (e.target as unknown as Element).setPointerCapture(e.pointerId);
-    if (controls) controls.enabled = false;
+    captureTarget(e)?.setPointerCapture(e.pointerId);
+    if (isPausable(controls)) controls.enabled = false;
     setDrag({ anchor: item, ids, offsetX: item.x - point.x, offsetZ: item.z - point.z, dx: 0, dz: 0 });
   };
 
@@ -101,8 +119,8 @@ export function SceneContent() {
   const onItemPointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (!drag) return;
     e.stopPropagation();
-    (e.target as unknown as Element).releasePointerCapture(e.pointerId);
-    if (controls) controls.enabled = true;
+    captureTarget(e)?.releasePointerCapture(e.pointerId);
+    if (isPausable(controls)) controls.enabled = true;
     moveSelection(drag.dx, drag.dz);
     setDrag(null);
   };

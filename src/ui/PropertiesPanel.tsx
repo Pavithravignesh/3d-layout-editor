@@ -5,14 +5,13 @@ import { EmptyState } from '../design-system/Panel';
 import { billOfMaterials } from '../domain/bom';
 import { getItemType } from '../domain/catalog';
 import { CLEARANCE } from '../domain/floor';
-import { bounds, footprint } from '../domain/geometry';
+import { bounds, footprint, isRotation, ROTATIONS } from '../domain/geometry';
 import { describeGroup } from '../domain/group';
-import type { Item, Rotation } from '../domain/types';
+import type { Item } from '../domain/types';
 import { useFormat } from '../i18n';
 import { useEditor, useSelectedItem, useViolations } from '../state/editorStore';
 import styles from './PropertiesPanel.module.css';
 
-const ROTATIONS: Rotation[] = [0, 90, 180, 270];
 
 /** Edits the selection. Every change is an undoable command, exactly like an edit in 3D. */
 export function PropertiesPanel() {
@@ -128,7 +127,10 @@ function ItemProperties({ item }: { item: Item }) {
         <select
           className={styles.input}
           value={item.rotation}
-          onChange={(e) => update(item.id, { rotation: Number(e.target.value) as Rotation })}
+          onChange={(e) => {
+            const rotation = Number(e.target.value);
+            if (isRotation(rotation)) update(item.id, { rotation });
+          }}
         >
           {ROTATIONS.map((r) => (
             <option key={r} value={r}>
