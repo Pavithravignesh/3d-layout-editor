@@ -14,13 +14,13 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { getItemType } from '../domain/catalog';
-import { useView, type ModelLoad } from '../state/viewStore';
+import { useView, type ModelKind, type ModelLoad } from '../state/viewStore';
 import { fitToSize, rgbaBytesWithMips } from './modelFit';
 
 const BASE = import.meta.env.BASE_URL;
 /** Optimised by tools/optimise-model.mjs: Meshopt geometry and KTX2 textures. */
 const OPTIMISED_URL = `${BASE}models/cabinet-lod0.glb`;
-/** The Poly Haven source (4K JPEG textures), kept out of git; used only for the load comparison. */
+/** The Poly Haven source (4K JPEG textures), kept out of git; drawn when Original is chosen. */
 const ORIGINAL_URL = `${BASE}models-original/utility_box_02_4k/utility_box_02_4k.gltf`;
 
 export type CabinetModel = { geometry: BufferGeometry; material: MeshStandardMaterial };
@@ -86,53 +86,53 @@ async function loadTimed(gl: WebGLRenderer, url: string, folder: string) {
   return { mesh, material, load };
 }
 
-let optimised: Promise<CabinetModel> | null = null;
+const SOURCES: Record<ModelKind, { url: string; folder: string }> = {
+  original: { url: ORIGINAL_URL, folder: '/models-original/' },
+  optimised: { url: OPTIMISED_URL, folder: '/models/' },
+};
 
-function loadOptimised(gl: WebGLRenderer): Promise<CabinetModel> {
-  optimised ??= loadTimed(gl, OPTIMISED_URL, '/models/').then(({ mesh, material, load }) => {
-    useView.getState().recordLoad('optimised', load);
-    mesh.updateWorldMatrix(true, false);
-    const geometry = mesh.geometry.clone();
-    toFloatAttributes(geometry);
-    geometry.applyMatrix4(mesh.matrixWorld);
-    geometry.computeBoundingBox();
-    const box = geometry.boundingBox!;
-    const { scale, offset } = fitToSize(box.min.toArray(), box.max.toArray(), getItemType('cabinet').size);
-    geometry.applyMatrix4(new Matrix4().makeTranslation(...offset).multiply(new Matrix4().makeScale(...scale)));
-    geometry.computeBoundingSphere();
-    return { geometry, material };
-  });
-  return optimised;
+/** Both versions go through the same steps, so their load and frame times compare fairly. */
+const loaded = new Map<ModelKind, Promise<CabinetModel>>();
+
+function loadModel(gl: WebGLRenderer, kind: ModelKind): Promise<CabinetModel> {
+  let model = loaded.get(kind);
+  if (!model) {
+    model = loadTimed(gl, SOURCES[kind].url, SOURCES[kind].folder).then(({ mesh, material, load }) => {
+      useView.getState().recordLoad(kind, load);
+      mesh.updateWorldMatrix(true, false);
+      const geometry = mesh.geometry.clone();
+      toFloatAttributes(geometry);
+      geometry.applyMatrix4(mesh.matrixWorld);
+      geometry.computeBoundingBox();
+      const box = geometry.boundingBox!;
+      const { scale, offset } = fitToSize(box.min.toArray(), box.max.toArray(), getItemType('cabinet').size);
+      geometry.applyMatrix4(new Matrix4().makeTranslation(...offset).multiply(new Matrix4().makeScale(...scale)));
+      geometry.computeBoundingSphere();
+      return { geometry, material };
+    });
+    loaded.set(kind, model);
+  }
+  return model;
 }
 
-/** The optimised cabinet once it has loaded, or null while it loads (boxes are shown meanwhile). */
-export function useCabinetModel(enabled: boolean): CabinetModel | null {
+/** The chosen cabinet model once it has loaded, or null while it loads (boxes are shown meanwhile). */
+export function useCabinetModel(kind: ModelKind | null): CabinetModel | null {
   const gl = useThree((s) => s.gl);
-  const [model, setModel] = useState<CabinetModel | null>(null);
+  const [models, setModels] = useState<Partial<Record<ModelKind, CabinetModel>>>({});
   useEffect(() => {
-    if (!enabled) return;
+    if (!kind) return;
     let live = true;
-    loadOptimised(gl).then((m) => live && setModel(m), (error) => console.error('Cabinet model failed to load', error));
+    loadModel(gl, kind).then(
+      (model) => live && setModels((current) => ({ ...current, [kind]: model })),
+      (error) => {
+        loaded.delete(kind);
+        if (kind === 'original') useView.getState().markOriginalMissing();
+        else console.error('Cabinet model failed to load', error);
+      },
+    );
     return () => {
       live = false;
     };
-  }, [enabled, gl]);
-  return enabled ? model : null;
-}
-
-/** Inside the canvas: loads the 25.8 MB original once when asked, for the before/after load time. */
-export function OriginalLoadProbe() {
-  const gl = useThree((s) => s.gl);
-  const requested = useView((s) => s.originalRequested);
-  useEffect(() => {
-    if (!requested) return;
-    loadTimed(gl, ORIGINAL_URL, '/models-original/').then(
-      ({ material, load }) => {
-        useView.getState().recordLoad('original', load);
-        texturesOf(material).forEach((texture) => texture.dispose());
-      },
-      () => useView.getState().markOriginalMissing(),
-    );
-  }, [requested, gl]);
-  return null;
+  }, [kind, gl]);
+  return kind ? (models[kind] ?? null) : null;
 }

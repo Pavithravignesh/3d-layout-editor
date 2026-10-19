@@ -6,15 +6,17 @@ import { useFormat } from '../i18n';
 import { useEditor } from '../state/editorStore';
 import { Segmented } from '../design-system/Segmented';
 import { useView } from '../state/viewStore';
-import { OriginalLoadProbe } from './cabinetModel';
 import { PerfProbe } from './perf';
 import { SceneContent } from './SceneContent';
 import styles from './Viewport.module.css';
 
-/** Display switches for the performance comparison: cabinet model vs boxes, instancing on vs off. */
+/**
+ * Display switches for the performance comparison: boxes, or the cabinet model before and after
+ * optimisation; instancing on or off.
+ */
 function CompareControls() {
   const { t } = useTranslation();
-  const { look, instancing, setLook, setInstancing } = useView();
+  const { look, instancing, originalMissing, setLook, setInstancing } = useView();
   return (
     <div className={styles.controls} role="group" aria-label={t('compare.label')}>
       <Segmented
@@ -22,7 +24,8 @@ function CompareControls() {
         value={look}
         options={[
           { value: 'boxes', label: t('compare.boxes') },
-          { value: 'model', label: t('compare.model') },
+          ...(originalMissing ? [] : [{ value: 'original' as const, label: t('compare.originalLabel') }]),
+          { value: 'optimised', label: t('compare.optimisedLabel') },
         ]}
         onChange={setLook}
       />
@@ -42,12 +45,12 @@ function CompareControls() {
 /** Size of the Poly Haven source, from docs/model-optimisation/report.json. */
 const ORIGINAL_BYTES = 27_058_219;
 
-/** Load size, GPU texture memory and time for the optimised model, and the original on request. */
+/** Download size, GPU texture memory and load time of each cabinet model loaded so far. */
 function ModelLoads() {
   const { t } = useTranslation();
   const fmt = useFormat();
-  const { look, optimisedLoad, originalLoad, originalRequested, originalMissing, requestOriginalLoad } = useView();
-  if (look !== 'model') return null;
+  const { look, loads, originalMissing } = useView();
+  if (look === 'boxes') return null;
   const size = (bytes: number) =>
     bytes >= 1024 * 1024 ? `${fmt.number(bytes / 1024 / 1024, 1)} MB` : `${fmt.number(Math.round(bytes / 1024))} KB`;
   const line = (key: string, load: { bytes: number; gpuBytes: number; ms: number }) =>
@@ -55,15 +58,19 @@ function ModelLoads() {
 
   return (
     <div className={styles.loads} role="status">
-      <p>{optimisedLoad ? line('compare.optimised', optimisedLoad) : t('compare.loading')}</p>
-      {originalLoad ? (
-        <p>{line('compare.original', originalLoad)}</p>
+      {loads.original ? (
+        <p>{line('compare.original', loads.original)}</p>
       ) : originalMissing ? (
         <p>{t('compare.originalMissing')}</p>
+      ) : look === 'original' ? (
+        <p>{t('compare.loadingOriginal')}</p>
       ) : (
-        <button type="button" className={styles.loadButton} disabled={originalRequested} onClick={requestOriginalLoad}>
-          {originalRequested ? t('compare.loadingOriginal') : t('compare.loadOriginal', { size: size(ORIGINAL_BYTES) })}
-        </button>
+        <p>{t('compare.originalHint', { size: size(ORIGINAL_BYTES) })}</p>
+      )}
+      {loads.optimised ? (
+        <p>{line('compare.optimised', loads.optimised)}</p>
+      ) : (
+        look === 'optimised' && <p>{t('compare.loading')}</p>
       )}
     </div>
   );
@@ -88,7 +95,6 @@ export function Viewport() {
         <directionalLight position={[10, 18, 8]} intensity={1.3} />
         <SceneContent />
         <PerfProbe />
-        <OriginalLoadProbe />
         <OrbitControls
           makeDefault
           enableDamping

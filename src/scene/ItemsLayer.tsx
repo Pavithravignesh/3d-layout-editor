@@ -54,7 +54,7 @@ type ItemsLayerProps = {
 export function ItemsLayer({ items, ...rest }: ItemsLayerProps) {
   const look = useView((s) => s.look);
   const instancing = useView((s) => s.instancing);
-  const cabinetModel = useCabinetModel(look === 'model');
+  const cabinetModel = useCabinetModel(look === 'boxes' ? null : look);
 
   const byType = useMemo(() => {
     const groups = new Map<string, Item[]>(CATALOG.map((t) => [t.id, []]));
