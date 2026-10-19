@@ -1,0 +1,112 @@
+{
+  "source": {
+    "file": "utility_box_02_4k.gltf",
+    "bytes": 27058219,
+    "textureBytes": 26855671,
+    "geometryBytes": 202548,
+    "triangles": 6268,
+    "drawCalls": 1,
+    "materials": 1,
+    "textures": [
+      {
+        "mime": "image/jpeg",
+        "size": "4096×4096",
+        "bytes": 10083641
+      },
+      {
+        "mime": "image/jpeg",
+        "size": "4096×4096",
+        "bytes": 7233192
+      },
+      {
+        "mime": "image/jpeg",
+        "size": "4096×4096",
+        "bytes": 9538838
+      }
+    ]
+  },
+  "texturesCompressed": true,
+  "lods": [
+    {
+      "lod": "lod0",
+      "file": "cabinet-lod0.glb",
+      "bytes": 507480,
+      "textureBytes": 438736,
+      "geometryBytes": 68744,
+      "triangles": 6268,
+      "drawCalls": 1,
+      "materials": 1,
+      "textures": [
+        {
+          "mime": "image/ktx2",
+          "size": "512×512",
+          "bytes": 161195
+        },
+        {
+          "mime": "image/ktx2",
+          "size": "1024×1024",
+          "bytes": 150922
+        },
+        {
+          "mime": "image/ktx2",
+          "size": "1024×1024",
+          "bytes": 126619
+        }
+      ]
+    },
+    {
+      "lod": "lod1",
+      "file": "cabinet-lod1.glb",
+      "bytes": 473292,
+      "textureBytes": 438736,
+      "geometryBytes": 34556,
+      "triangles": 2500,
+      "drawCalls": 1,
+      "materials": 1,
+      "textures": [
+        {
+          "mime": "image/ktx2",
+          "size": "512×512",
+          "bytes": 161195
+        },
+        {
+          "mime": "image/ktx2",
+          "size": "1024×1024",
+          "bytes": 150922
+        },
+        {
+          "mime": "image/ktx2",
+          "size": "1024×1024",
+          "bytes": 126619
+        }
+      ]
+    },
+    {
+      "lod": "lod2",
+      "file": "cabinet-lod2.glb",
+      "bytes": 82316,
+      "textureBytes": 71412,
+      "geometryBytes": 10904,
+      "triangles": 499,
+      "drawCalls": 1,
+      "materials": 1,
+      "textures": [
+        {
+          "mime": "image/ktx2",
+          "size": "256×256",
+          "bytes": 45297
+        },
+        {
+          "mime": "image/ktx2",
+          "size": "256×256",
+          "bytes": 13719
+        },
+        {
+          "mime": "image/ktx2",
+          "size": "256×256",
+          "bytes": 12396
+        }
+      ]
+    }
+  ]
+}

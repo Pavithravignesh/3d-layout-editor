@@ -111,5 +111,20 @@
     "help": "Kéo để xoay · Kéo chuột phải để di chuyển · Cuộn để thu phóng",
     "helpSelected": "Phím mũi tên di chuyển 0,5 m (Shift: 1 m) · R để xoay · Delete để xóa · Ctrl + nhấp để chọn thêm · Esc để bỏ chọn",
     "helpGroup": "Kéo hoặc dùng phím mũi tên để di chuyển nhóm · R xoay từng thiết bị · Ctrl+C / Ctrl+V sao chép · Delete xóa tất cả"
+  },
+  "compare": {
+    "label": "So sánh hiệu năng",
+    "look": "Tủ điện",
+    "boxes": "Hộp",
+    "model": "Mô hình",
+    "instancing": "Instancing",
+    "on": "Bật",
+    "off": "Tắt",
+    "loading": "Đang nạp mô hình tủ điện đã tối ưu…",
+    "optimised": "Mô hình tối ưu: tải {{size}}, {{gpu}} texture trên GPU, sẵn sàng sau {{ms}} ms",
+    "original": "Bản gốc: tải {{size}}, {{gpu}} texture trên GPU, sẵn sàng sau {{ms}} ms",
+    "loadOriginal": "Nạp bản gốc {{size}} để so sánh",
+    "loadingOriginal": "Đang nạp mô hình gốc…",
+    "originalMissing": "Máy này chưa có bản gốc; README hướng dẫn cách tải về."
   }
 }

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '../design-system/Button';
 import { Icon } from '../design-system/Icon';
+import { Segmented } from '../design-system/Segmented';
 import { LANGUAGES, useFormat } from '../i18n';
 import { useEditor } from '../state/editorStore';
 import { usePerf } from '../state/perfStore';
@@ -68,22 +69,12 @@ export function TopBar({ className }: { className?: string }) {
         <Button icon="box" size="sm" onClick={() => useEditor.getState().loadTestLayout(TEST_ITEMS)}>
           {t('perf.load', { count: TEST_ITEMS })}
         </Button>
-        <div className={styles.segmented} role="group" aria-label={t('toolbar.language')}>
-          {LANGUAGES.map((lang) => (
-            <button
-              key={lang.code}
-              type="button"
-              className={styles.segment}
-              aria-pressed={i18n.language === lang.code}
-              aria-label={lang.name}
-              title={lang.name}
-              lang={lang.code}
-              onClick={() => void i18n.changeLanguage(lang.code)}
-            >
-              {lang.label}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label={t('toolbar.language')}
+          value={i18n.language}
+          options={LANGUAGES.map((lang) => ({ value: lang.code, label: lang.label, title: lang.name, lang: lang.code }))}
+          onChange={(code) => void i18n.changeLanguage(code)}
+        />
       </div>
     </header>
   );

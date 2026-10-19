@@ -5,3 +5,4 @@ dist/
 .claude/
 *.tsbuildinfo
 models-source/
+public/models-original/

@@ -118,5 +118,20 @@
     "help": "Drag to orbit · Right-drag to pan · Scroll to zoom",
     "helpSelected": "Arrow keys move 0.5 m (Shift: 1 m) · R rotates · Delete removes · Ctrl-click adds items · Esc deselects",
     "helpGroup": "Drag or arrow keys move the group · R rotates each · Ctrl+C / Ctrl+V copy · Delete removes all"
+  },
+  "compare": {
+    "label": "Performance comparison",
+    "look": "Cabinets",
+    "boxes": "Boxes",
+    "model": "Model",
+    "instancing": "Instancing",
+    "on": "On",
+    "off": "Off",
+    "loading": "Loading the optimised cabinet model…",
+    "optimised": "Optimised model: {{size}} download, {{gpu}} of textures on the GPU, ready in {{ms}} ms",
+    "original": "Original: {{size}} download, {{gpu}} of textures on the GPU, ready in {{ms}} ms",
+    "loadOriginal": "Load the {{size}} original to compare",
+    "loadingOriginal": "Loading the original model…",
+    "originalMissing": "The original is not on this machine; the README says how to download it."
   }
 }

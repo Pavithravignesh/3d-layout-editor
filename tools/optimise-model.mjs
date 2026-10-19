@@ -1,25 +1,26 @@
 // Optimises one heavy glTF model the way Section 9.1 of the design document describes, and
-// reports before and after: file size, triangles, draw calls (primitives) and textures.
+// reports before and after: file size (geometry and textures), triangles and draw calls.
 //
-// Usage: node tools/optimise-model.mjs <input.gltf> <outDir> [--ktx2]
-//   --ktx2  resize textures and encode them to KTX2. Needs the `toktx` program and
-//           @gltf-transform/cli, so it runs in CI (.github/workflows/optimise-model.yml).
-//           Without it, textures are copied unchanged and the report says so.
+// Usage: node tools/optimise-model.mjs <input.gltf> <outDir> [--no-ktx2]
+// Everything runs in Node through WebAssembly (meshoptimizer, Basis Universal) or plain
+// JavaScript (jpeg-js), so no native tools are needed. --no-ktx2 keeps textures unchanged.
 import fs from 'node:fs';
 import path from 'node:path';
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { dedup, flatten, join, meshopt, prune, simplify, weld } from '@gltf-transform/functions';
+import jpeg from 'jpeg-js';
+import { ktx2 } from 'ktx2-encoder/gltf-transform';
 import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer';
 
 const [input, outDir] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-const useKtx2 = process.argv.includes('--ktx2');
+const useKtx2 = !process.argv.includes('--no-ktx2');
 if (!input || !outDir) {
-  console.error('Usage: node tools/optimise-model.mjs <input.gltf> <outDir> [--ktx2]');
+  console.error('Usage: node tools/optimise-model.mjs <input.gltf> <outDir> [--no-ktx2]');
   process.exit(1);
 }
 
-/** Levels of detail and their triangle budgets from Section 9.2; texture size per level. */
+/** Levels of detail with their triangle budgets (Section 9.2) and largest texture side. */
 const LODS = [
   { name: 'lod0', maxTriangles: 10_000, error: 0.001, texture: 1024 },
   { name: 'lod1', maxTriangles: 2_500, error: 0.01, texture: 1024 },
@@ -64,38 +65,74 @@ const sizes = (bytes, s) => {
   return { bytes, textureBytes, geometryBytes: bytes - textureBytes };
 };
 
+/**
+ * Decodes a JPEG and shrinks it by averaging whole blocks of pixels until it fits in `maxSide`.
+ * Plain JavaScript, so it runs where native image libraries are blocked.
+ */
+const decodeAndFit = (maxSide) => async (buffer) => {
+  const src = jpeg.decode(buffer, { useTArray: true, formatAsRGBA: true, maxMemoryUsageInMB: 1024 });
+  const k = Math.max(1, Math.ceil(Math.max(src.width, src.height) / maxSide));
+  const width = Math.floor(src.width / k);
+  const height = Math.floor(src.height / k);
+  const data = new Uint8Array(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      for (let c = 0; c < 4; c++) {
+        let sum = 0;
+        for (let dy = 0; dy < k; dy++) {
+          const row = (y * k + dy) * src.width;
+          for (let dx = 0; dx < k; dx++) sum += src.data[(row + x * k + dx) * 4 + c];
+        }
+        data[(y * width + x) * 4 + c] = Math.round(sum / (k * k));
+      }
+    }
+  }
+  return { width, height, data };
+};
+
+/** Basis Universal settings per texture slot: small ETC1S for colour and packed maps, UASTC for normals. */
+/** Normal maps stop at 512 px: finer bumps are invisible on a 2 m cabinet at editing distance. */
+const NORMAL_MAX_SIDE = 512;
+
+function textureTransforms(maxSide) {
+  const imageDecoder = decodeAndFit(maxSide);
+  const shared = { imageDecoder, generateMipmap: true, isKTX2File: true };
+  const normalDecoder = decodeAndFit(Math.min(maxSide, NORMAL_MAX_SIDE));
+  return [
+    ktx2({ ...shared, slots: /^baseColorTexture$/, isUASTC: false, qualityLevel: 128, isPerceptual: true, isSetKTX2SRGBTransferFunc: true }),
+    ktx2({ ...shared, slots: /^(occlusion|metallicRoughness)Texture$/, isUASTC: false, qualityLevel: 128, isPerceptual: false }),
+    ktx2({ ...shared, imageDecoder: normalDecoder, slots: /^normalTexture$/, isUASTC: true, isNormalMap: true, isPerceptual: false, needSupercompression: true, enableRDO: true, rdoQualityLevel: 3 }),
+  ];
+}
+
 const original = await io.read(input);
 const originalStats = stats(original);
 const before = { file: path.basename(input), ...sizes(diskBytes(input), originalStats), ...originalStats };
 fs.mkdirSync(outDir, { recursive: true });
 
-const ktx2 = useKtx2 ? await import('@gltf-transform/cli') : null;
-// toktx uses sharp to resize images before encoding them.
-const encoder = useKtx2 ? (await import('sharp')).default : null;
 const after = [];
 for (const lod of LODS) {
+  const started = Date.now();
   const doc = await io.read(input);
   await doc.transform(dedup(), prune(), flatten(), join(), weld());
   const current = stats(doc).triangles;
   if (current > lod.maxTriangles) {
     await doc.transform(simplify({ simplifier: MeshoptSimplifier, ratio: lod.maxTriangles / current, error: lod.error }));
   }
-  if (ktx2) {
-    const resize = [lod.texture, lod.texture];
-    // Colour and packed AO/roughness/metalness: small ETC1S. Normal maps: UASTC, which keeps detail.
-    await doc.transform(
-      ktx2.toktx({ encoder, mode: ktx2.Mode.UASTC, slots: /^normalTexture$/, resize }),
-      ktx2.toktx({ encoder, mode: ktx2.Mode.ETC1S, slots: /^(?!normalTexture$).*/, resize }),
-    );
+  if (useKtx2) {
+    await doc.transform(...textureTransforms(lod.texture));
+    const missed = doc.getRoot().listTextures().filter((t) => t.getMimeType() !== 'image/ktx2');
+    if (missed.length) throw new Error(`${lod.name}: ${missed.length} texture(s) were not converted to KTX2`);
   }
   await doc.transform(prune(), meshopt({ encoder: MeshoptEncoder, level: 'medium' }));
   const out = path.join(outDir, `cabinet-${lod.name}.glb`);
   await io.write(out, doc);
   const lodStats = stats(doc);
   after.push({ lod: lod.name, file: path.basename(out), ...sizes(diskBytes(out), lodStats), ...lodStats });
+  console.log(`  ${lod.name} done in ${((Date.now() - started) / 1000).toFixed(1)} s`);
 }
 
-const report = { source: before, texturesCompressed: Boolean(ktx2), lods: after };
+const report = { source: before, texturesCompressed: useKtx2, lods: after };
 fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify(report, null, 2));
 
 const mb = (b) => (b / 1024 / 1024).toFixed(2) + ' MB';
@@ -105,4 +142,4 @@ const line = (label, r, size) =>
   `${r.triangles} triangles, ${r.drawCalls} draw calls, textures ${r.textures.map((t) => `${t.size} ${t.mime}`).join(', ') || 'none'}`;
 console.log(line('Before', before, mb));
 for (const a of after) console.log(line('After ', a, kb));
-if (!ktx2) console.log('Textures were copied unchanged; run with --ktx2 (in CI) to resize and compress them.');
+if (!useKtx2) console.log('Textures were left unchanged (--no-ktx2).');
