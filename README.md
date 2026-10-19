@@ -110,7 +110,7 @@ Selecting, dragging and undo work the same with every combination of the switche
 
 | Plus item | Implementation |
 | --- | --- |
-| 3D model optimisation | A 25.8 MB glTF cabinet goes through `tools/optimise-model.mjs` (simplify, Meshopt, KTX2) to **496 KB**, with three levels of detail. In the editor it is drawn with instancing: **13 draw calls instead of 1,058** for 500 items, and at 2,500 items it runs at about **52 fps against 46 fps** for the original. Details and numbers in [3D model optimisation](#3d-model-optimisation) |
+| 3D model optimisation | A 25.8 MB glTF cabinet goes through `tools/optimise-model.mjs` (simplify, Meshopt, KTX2) to **496 KB**, with three levels of detail. In the editor it is drawn with instancing: **13 draw calls instead of 1,058** for 500 items, At 2,000 items instancing keeps 60 fps where drawing items one by one falls to about 40 fps, and at 2,500 items the optimised model runs at about **52 fps against 46 fps** for the original. Details and numbers in [3D model optimisation](#3d-model-optimisation) |
 | Editing depth: multi-select, copy and paste | Selection is a list with a primary item. Group move, rotate, delete, cut and paste are each **one batch command**, so a single Ctrl+Z reverts them. Moves are clamped for the group as a whole. The properties panel shows the group's make-up, clearance issues and group actions |
 | Keyboard editing | Select (list and Ctrl+A), move one cell (arrow keys), delete and every other edit from the keyboard, with screen-reader announcements of the result |
 
@@ -170,12 +170,13 @@ How to measure: run `npm run build && npm run preview`, open the app full-screen
 | Triangles | 6,268 | 6,268 near · 2,500 mid (462 KB) · 499 far (80 KB) |
 | Draw calls per model | 1 | 1 |
 | Texture memory on the GPU | 256 MB (RGBA with mipmaps) | **3 MB** (stays compressed) |
-| Ready to draw (download, parse, transcode, GPU upload) | 685–962 ms | **242–432 ms**, including the one-off start of the KTX2 decoder |
+| Ready to draw (download, parse, transcode, GPU upload) | 685–1,557 ms | **242–432 ms**, including the one-off start of the KTX2 decoder |
 | Download on the brief's 10 Mbps VPN | ≈ 21 s | **≈ 0.4 s** |
 | Frame time, 500 items | 60 fps (16.6 ms) | 60 fps (16.7 ms) |
+| Frame time, 2,000 items (the brief's largest scene) | 59 fps (17 ms) | 60 fps (16.7 ms) |
 | **Frame time, 2,500 items** | **42–51 fps, average ≈ 46 (≈ 21.7 ms)** | **48–56 fps, average ≈ 52 (≈ 19.2 ms)** |
 
-Load times were measured in Chrome from `localhost` on the laptop in the table above (first load, two sessions), so they show the cost of decoding and uploading; the 10 Mbps line adds the network time the brief describes. Frame times were read from the top bar with the same camera view and the same items, switching only between **Original** and **Optimised**, instancing on. Both versions have the same triangles and one draw call; the difference at 2,500 items comes from the textures (256 MB versus 3 MB on the GPU), and it takes the scene from over to within the brief's 50 fps budget.
+Load times were measured in Chrome from `localhost` on the laptop in the table above (first load, two sessions), so they show the cost of decoding and uploading; the 10 Mbps line adds the network time the brief describes. Frame times were read from the top bar with the same camera view and the same items, switching only between **Original** and **Optimised**, instancing on. Both versions have the same triangles and one draw call. Up to the brief's 2,000 items this laptop draws even the original at about 60 fps; beyond that the textures (256 MB versus 3 MB on the GPU) start to cost frame time, and at 2,500 items the optimised model keeps the scene within the brief's 50 fps budget where the original falls below it. On weaker GPUs, and with the 40 distinct models a real room uses, that texture memory matters sooner.
 
 **Instancing** (500 items, measured with the switches in the 3D view):
 
@@ -191,9 +192,10 @@ With instancing, draw calls depend on the number of different models and parts, 
 | Scene | Instancing on | Instancing off |
 | --- | --- | --- |
 | 500 items, cabinets as the glTF model | **56–60 fps** (16.6–17.9 ms), 13 draw calls | 60 fps (16.7 ms), 1,058 draw calls |
+| 2,000 items, boxes (the brief's largest scene) | **60 fps (16.7 ms)**, 15 draw calls | **25–52 fps, average ≈ 40 (≈ 25 ms)**, 6,006 draw calls |
 | 2,500 items, boxes | **60 fps (16.7 ms)**, 15 draw calls | **35 fps (28.7 ms)**, 7,515 draw calls |
 
-At 500 items this laptop absorbs about 1,500 draw calls within a 60 Hz frame. At 2,500 items, drawing each item on its own breaks the brief's budget (50 fps, under 300 draw calls); with instancing the scene stays at the display's 60 fps with 15 draw calls.
+At 500 items this laptop absorbs about 1,500 draw calls within a 60 Hz frame. At the brief's 2,000 items, drawing each item on its own breaks its budget (50 fps, under 300 draw calls); with instancing the scene stays at the display's 60 fps with 15 draw calls.
 
 **Reproduce:**
 
