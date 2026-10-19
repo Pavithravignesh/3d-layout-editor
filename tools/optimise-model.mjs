@@ -70,6 +70,8 @@ const before = { file: path.basename(input), ...sizes(diskBytes(input), original
 fs.mkdirSync(outDir, { recursive: true });
 
 const ktx2 = useKtx2 ? await import('@gltf-transform/cli') : null;
+// toktx uses sharp to resize images before encoding them.
+const encoder = useKtx2 ? (await import('sharp')).default : null;
 const after = [];
 for (const lod of LODS) {
   const doc = await io.read(input);
@@ -82,8 +84,8 @@ for (const lod of LODS) {
     const resize = [lod.texture, lod.texture];
     // Colour and packed AO/roughness/metalness: small ETC1S. Normal maps: UASTC, which keeps detail.
     await doc.transform(
-      ktx2.toktx({ mode: ktx2.Mode.UASTC, slots: /^normalTexture$/, resize }),
-      ktx2.toktx({ mode: ktx2.Mode.ETC1S, slots: /^(?!normalTexture$).*/, resize }),
+      ktx2.toktx({ encoder, mode: ktx2.Mode.UASTC, slots: /^normalTexture$/, resize }),
+      ktx2.toktx({ encoder, mode: ktx2.Mode.ETC1S, slots: /^(?!normalTexture$).*/, resize }),
     );
   }
   await doc.transform(prune(), meshopt({ encoder: MeshoptEncoder, level: 'medium' }));

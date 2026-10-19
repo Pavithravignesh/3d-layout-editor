@@ -21,7 +21,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm install --no-save @gltf-transform/cli@4
+      - run: npm install --no-save @gltf-transform/cli@4 sharp
       - name: Install the KTX2 encoder (toktx)
         run: |
           curl -sSL -o ktx.deb https://github.com/KhronosGroup/KTX-Software/releases/download/v4.3.2/KTX-Software-4.3.2-Linux-x86_64.deb
