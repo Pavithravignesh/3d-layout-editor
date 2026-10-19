@@ -6,6 +6,8 @@ A browser-based editor for placing electrical equipment on a 20 m × 12 m room f
 
 Built with React 18, TypeScript (strict), three.js via React Three Fiber, and Zustand. This is Part B of the assessment; the architecture design document (Part A) is sent separately as a PDF.
 
+**Live demo:** https://3d-layout-editor.vercel.app (deployed from `main`)
+
 ## Run it
 
 Requires **Node.js 20+**.
@@ -150,6 +152,7 @@ Measured with **Add 500 test items** (a fixed, repeatable layout: 224 cabinets, 
 | **Frame rate, 2,500 items** | **59 fps (17.1 ms per frame)**: five clicks of **Add 500 test items**, same laptop and setup. Above the brief's 2,000-item scene and its 50 fps budget |
 | Draw calls, 500 items | 15 (9 for all items + floor, grid and walls) |
 | Draw calls, 2,500 items | Still 15; 19 while an item is selected (its outline and clearance zone add 4) |
+| Browser memory, 2,000 items | Editor tab **175 MB**; Chrome's GPU process 733 MB, shared with the other open tabs, so an upper bound. Together under the brief's 1 GB budget |
 | Generating 500 items | about 35 ms, one undo step |
 | First download (panels usable) | ≈ 34 KB gzipped JavaScript + 3 KB CSS |
 | 3D code, loaded after | ≈ 282 KB gzipped (three.js, React Three Fiber) |
