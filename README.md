@@ -231,10 +231,51 @@ npm test
 
 ## Use of AI tools
 
-I used **Claude Code** (Anthropic's coding assistant, Claude Opus model) as a pair programmer for the whole assessment, working step by step: I set the goal and the constraints, the assistant proposed a plan, and nothing was built or changed until I approved it.
+### The tool
 
-- **Part B, this editor.** The assistant wrote the code and the tests, ran type-checks, lint, tests and builds after each step, and checked behaviour in a browser. I tested every feature by hand in Chrome, and all frame rates and load times in this README are my own measurements on my laptop.
-- **3D model optimisation.** The assistant searched for freely licensed models, and wrote the pipeline and the comparison switches; I chose the model and the approach and measured the results.
-- **Part A, the design document.** I made the architecture decisions; the assistant drafted the sections from them, generated the diagrams (editable Excalidraw files) and the Surface 1 wireframes, and checked the document against the brief line by line. I reviewed and corrected every section.
+I used **Claude Code** (Anthropic, Claude Opus model) in the Claude desktop app for the whole assessment, as an agent rather than a chat window. With my approval it read and edited files, ran commands (type-check, lint, tests, builds, the model pipeline), opened the editor in a built-in browser to check it, worked with GitHub (branches, pull requests, CI, merges) and kept notes between sessions on decisions and progress. It is one assistant working step by step; I did not use multi-agent workflows.
 
-I can explain and change any part of the code or the design.
+### Who did what
+
+| Work | Me | Claude Code |
+| --- | --- | --- |
+| Decisions: architecture, stack, scope, which plus items, trade-offs | ✔ made them | Proposed options with costs |
+| Part B code and tests | Reviewed each step | Wrote them, ran the checks |
+| Part A design document, diagrams, wireframes | Set the decisions, reviewed and corrected every section | Drafted from my decisions, generated the editable diagrams and wireframes |
+| Model optimisation pipeline | Chose the model and the approach | Searched for free models, wrote the pipeline |
+| Testing by hand in Chrome (select, drag, undo, keyboard, switches) | ✔ every feature | — |
+| All measurements: frame rate, draw calls, load time, memory | ✔ on my laptop | Explained how to measure, recorded the results |
+
+### The workflow
+
+1. **Understand first.** Before deciding anything I asked for plain-language explanations of the brief and of each design point.
+2. **Plan and approve.** The assistant stated a plan with options, time and risks; nothing was built until I chose.
+3. **Build in isolation.** Larger features were built on a separate branch and folder and pushed only when I said so.
+4. **Check automatically.** Type-check, lint, the unit tests and a production build after every change; CI runs the same on every pull request.
+5. **Check by hand.** I tested each feature in Chrome and measured every number in this README myself.
+6. **Audit against the brief.** I had the work compared with the brief word by word, more than once, and fixed what was missing.
+7. **Ship safely.** Pull request, green CI, merge, and the live demo redeploys from `main`.
+
+### Example prompts
+
+The kind of instructions I gave, close to how I wrote them:
+
+- "Before starting, tell me your plan and ask me questions."
+- "Explain this point in plain language, and tell me how the project covers it."
+- "Check all eight wireframe screens for inconsistencies before fixing anything."
+- "Go through the brief again, word by word: is anything missing or wrong?"
+- "Why did you miss this?" (when a requirement turned out to be missing, I asked for the cause and a better check, not just a fix)
+- "Build it on a separate branch and test it locally; don't push until I tell you."
+- "Tell me exactly how to test this in Chrome, step by step." (then I measured the results myself)
+- "Use only black text in the PDF and keep the front page simple."
+
+### What the assistant got wrong, and how it was caught
+
+- **Missing design topics.** The first design document did not explain the role-based home page or wiring, both named in the brief's scenario. My review against the brief found them; the sections were added.
+- **Wrong comparison.** "Frame time before and after" was first answered with instancing on and off, not the original model against the optimised one. Re-reading the brief caught it; the **Original / Optimised** switch was added and I re-measured.
+- **A silent failure.** In CI, a texture encoder version mismatch skipped every texture while the run still passed. The pipeline now fails if any texture is not converted.
+- **A real bug.** Clicking **Add 500 test items** twice reused item ids; a unit test now covers it.
+
+### In the design review
+
+I can explain and change any part of the code or the design, walk through any of the steps above, and repeat any measurement live.
