@@ -6,3 +6,6 @@ dist/
 *.tsbuildinfo
 models-source/
 public/models-original/
+# The design document and wireframes describe the confidential assessment scenario; they are sent by email, not published.
+docs/part-a/
+design/

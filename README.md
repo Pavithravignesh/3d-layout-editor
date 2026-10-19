@@ -4,7 +4,7 @@
 
 A browser-based editor for placing electrical equipment on a 20 m × 12 m room floor. Place, move, rotate and delete items on a 0.5 m grid, undo any edit, see clearance violations as you work, and read a live bill of materials in English or Vietnamese.
 
-Built with React 18, TypeScript (strict), three.js via React Three Fiber, and Zustand.
+Built with React 18, TypeScript (strict), three.js via React Three Fiber, and Zustand. This is Part B of the assessment; the architecture design document (Part A) is sent separately as a PDF.
 
 ## Run it
 
@@ -54,7 +54,7 @@ They are slower than the native tools and are not needed on a normal machine.
 | Camera | Drag to orbit, right-drag to pan, scroll to zoom |
 | Language | **EN / VI** in the top bar; numbers follow the locale (0.5 m → 0,5 m) |
 | Performance test | **Add 500 test items** in the top bar; each click adds 500 more in new positions (one undo step removes a batch) |
-| Display switches | **Boxes / Model** and **Instancing: On / Off** at the top right of the 3D view; see [Display switches](#display-switches-boxes--model-and-instancing-on--off) |
+| Display switches | **Boxes / Original / Optimised** and **Instancing: On / Off** at the top right of the 3D view; see [Display switches](#display-switches-boxes--original--optimised-and-instancing-on--off) |
 
 ### Keyboard shortcuts
 
@@ -81,14 +81,15 @@ Every keyboard edit is announced to screen readers, for example "Done: move C-01
 3. **Copy and paste.** **Ctrl+C**, then **Ctrl+V**: the copies appear one cell down and to the right, get the next free labels (C-04, D-02…) and become the selection, so you can drag them straight away. Pasting again places another set a further cell away. **Ctrl+X** cuts.
 4. **Undo.** Each group action, including a paste, is one step: a single **Ctrl+Z** reverts all of it.
 
-### Display switches: Boxes / Model and Instancing On / Off
+### Display switches: Boxes / Original / Optimised and Instancing On / Off
 
 Two switches at the **top right of the 3D view** change only how the scene is drawn. They never change the layout and are not part of undo.
 
 | Switch | What it means | When to use it |
 | --- | --- | --- |
 | **Boxes** (default) | Every item is drawn as simple boxes at its exact catalogue size | Normal editing |
-| **Model** | Control cabinets are drawn with the optimised glTF model (496 KB, KTX2 textures). Drives and transformers stay boxes. The panel at the bottom left shows the model's download size, GPU texture memory and load time, and a button loads the 25.8 MB original once to compare | To see the optimised model and its before/after numbers |
+| **Original** | Control cabinets are drawn with the unoptimised source model (25.8 MB, 4K textures). Drives and transformers stay boxes. Needs `npm run model:fetch` first, as the source is not in git | The "before" side: its load time and frame time |
+| **Optimised** | Control cabinets are drawn with the optimised model (496 KB, KTX2 textures) | The "after" side. The panel at the bottom left lists the download size, GPU texture memory and load time of each model loaded so far |
 | **Instancing: On** (default) | All items of the same kind are drawn together, one draw call per part per type: 15 draw calls for the boxes whatever the number of items | Normal editing |
 | **Off** | Every item is drawn on its own, so draw calls grow with the number of items | To see why instancing matters: 2,500 items fall from 60 fps (15 draw calls) to 35 fps (7,515 draw calls) |
 
@@ -109,7 +110,7 @@ Selecting, dragging and undo work the same with every combination of the switche
 
 | Plus item | Implementation |
 | --- | --- |
-| 3D model optimisation | A 25.8 MB glTF cabinet goes through `tools/optimise-model.mjs` (simplify, Meshopt, KTX2) to **496 KB**, with three levels of detail. In the editor it is drawn with instancing: **13 draw calls instead of 1,058** for 500 items. Details and numbers in [3D model optimisation](#3d-model-optimisation) |
+| 3D model optimisation | A 25.8 MB glTF cabinet goes through `tools/optimise-model.mjs` (simplify, Meshopt, KTX2) to **496 KB**, with three levels of detail. In the editor it is drawn with instancing: **13 draw calls instead of 1,058** for 500 items, and at 2,500 items it runs at about **52 fps against 46 fps** for the original. Details and numbers in [3D model optimisation](#3d-model-optimisation) |
 | Editing depth: multi-select, copy and paste | Selection is a list with a primary item. Group move, rotate, delete, cut and paste are each **one batch command**, so a single Ctrl+Z reverts them. Moves are clamped for the group as a whole. The properties panel shows the group's make-up, clearance issues and group actions |
 | Keyboard editing | Select (list and Ctrl+A), move one cell (arrow keys), delete and every other edit from the keyboard, with screen-reader announcements of the result |
 
@@ -137,7 +138,7 @@ tools/               Model pipeline (optimise-model.mjs, fetch-source-model.mjs)
 
 **Keyboard editing and accessibility.** Every edit works from the keyboard: select with the item list (one Tab stop, ↑ / ↓ / Home / End), move one cell with the arrow keys (Shift for 1 m), rotate with **R**, delete with **Delete**, undo and redo with **Ctrl+Z / Ctrl+Y**. A polite live region announces each edit with the result, for example "Done: move C-01. Now at 5, 2.5 m. Too close to D-01 (0.2 m)." Focus is always visible, and status is shown with text and icons as well as colour.
 
-**Item models.** By default the equipment is drawn from simple box primitives (body, plinth and a front panel that shows orientation). The Khronos glTF sample models, Poly Haven, Kenney, Quaternius, Poly Pizza and Sketchfab were searched for free models: none has a variable-speed drive or a transformer, and the closest cabinet is an outdoor utility box. That box is used to show the optimisation pipeline (**Model** switch, cabinets only); boxes stay the default because they match every catalogue footprint exactly.
+**Item models.** By default the equipment is drawn from simple box primitives (body, plinth and a front panel that shows orientation). The Khronos glTF sample models, Poly Haven, Kenney, Quaternius, Poly Pizza and Sketchfab were searched for free models: none has a variable-speed drive or a transformer, and the closest cabinet is an outdoor utility box. That box is used to show the optimisation pipeline (**Original / Optimised** switch, cabinets only); boxes stay the default because they match every catalogue footprint exactly.
 
 ## Performance
 
@@ -169,10 +170,12 @@ How to measure: run `npm run build && npm run preview`, open the app full-screen
 | Triangles | 6,268 | 6,268 near · 2,500 mid (462 KB) · 499 far (80 KB) |
 | Draw calls per model | 1 | 1 |
 | Texture memory on the GPU | 256 MB (RGBA with mipmaps) | **3 MB** (stays compressed) |
-| Ready to draw (download, parse, transcode, GPU upload) | 962 ms | **432 ms**, including the one-off start of the KTX2 decoder |
+| Ready to draw (download, parse, transcode, GPU upload) | 685–962 ms | **242–432 ms**, including the one-off start of the KTX2 decoder |
 | Download on the brief's 10 Mbps VPN | ≈ 21 s | **≈ 0.4 s** |
+| Frame time, 500 items | 60 fps (16.6 ms) | 60 fps (16.7 ms) |
+| **Frame time, 2,500 items** | **42–51 fps, average ≈ 46 (≈ 21.7 ms)** | **48–56 fps, average ≈ 52 (≈ 19.2 ms)** |
 
-Load times were measured in Chrome from `localhost` on the laptop in the table above (first load), so they show the cost of decoding and uploading; the 10 Mbps line adds the network time the brief describes.
+Load times were measured in Chrome from `localhost` on the laptop in the table above (first load, two sessions), so they show the cost of decoding and uploading; the 10 Mbps line adds the network time the brief describes. Frame times were read from the top bar with the same camera view and the same items, switching only between **Original** and **Optimised**, instancing on. Both versions have the same triangles and one draw call; the difference at 2,500 items comes from the textures (256 MB versus 3 MB on the GPU), and it takes the scene from over to within the brief's 50 fps budget.
 
 **Instancing** (500 items, measured with the switches in the 3D view):
 
@@ -183,7 +186,7 @@ Load times were measured in Chrome from `localhost` on the laptop in the table a
 
 With instancing, draw calls depend on the number of different models and parts, not on the number of items.
 
-**Frame time** (orbiting the camera, same laptop, Chrome, 1080p):
+**Frame time with and without instancing** (orbiting the camera, same laptop, Chrome, 1080p):
 
 | Scene | Instancing on | Instancing off |
 | --- | --- | --- |
@@ -223,4 +226,10 @@ npm test
 
 ## Use of AI tools
 
-This project was built with **Claude Code** (Anthropic's coding assistant, Claude Opus model) as a pair programmer, working step by step: agreeing the plan and defaults, then building and verifying one step at a time (scaffold, edit model and tests, 3D interaction, panels, performance, polish). The assistant wrote code and tests, ran type-checks, lint, tests and builds, and checked behaviour in a browser after each step; I reviewed each step, made the product and design decisions, and own the result. I can explain and change any part of the code.
+I used **Claude Code** (Anthropic's coding assistant, Claude Opus model) as a pair programmer for the whole assessment, working step by step: I set the goal and the constraints, the assistant proposed a plan, and nothing was built or changed until I approved it.
+
+- **Part B, this editor.** The assistant wrote the code and the tests, ran type-checks, lint, tests and builds after each step, and checked behaviour in a browser. I tested every feature by hand in Chrome, and all frame rates and load times in this README are my own measurements on my laptop.
+- **3D model optimisation.** The assistant searched for freely licensed models, and wrote the pipeline and the comparison switches; I chose the model and the approach and measured the results.
+- **Part A, the design document.** I made the architecture decisions; the assistant drafted the sections from them, generated the diagrams (editable Excalidraw files) and the Surface 1 wireframes, and checked the document against the brief line by line. I reviewed and corrected every section.
+
+I can explain and change any part of the code or the design.

@@ -123,15 +123,16 @@
     "label": "Performance comparison",
     "look": "Cabinets",
     "boxes": "Boxes",
-    "model": "Model",
     "instancing": "Instancing",
     "on": "On",
     "off": "Off",
     "loading": "Loading the optimised cabinet model…",
     "optimised": "Optimised model: {{size}} download, {{gpu}} of textures on the GPU, ready in {{ms}} ms",
     "original": "Original: {{size}} download, {{gpu}} of textures on the GPU, ready in {{ms}} ms",
-    "loadOriginal": "Load the {{size}} original to compare",
     "loadingOriginal": "Loading the original model…",
-    "originalMissing": "The original is not on this machine; the README says how to download it."
+    "originalMissing": "The original is not on this machine; the README says how to download it.",
+    "originalLabel": "Original",
+    "optimisedLabel": "Optimised",
+    "originalHint": "Choose Original to load the {{size}} source model and compare."
   }
 }

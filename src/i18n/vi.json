@@ -116,15 +116,16 @@
     "label": "So sánh hiệu năng",
     "look": "Tủ điện",
     "boxes": "Hộp",
-    "model": "Mô hình",
     "instancing": "Instancing",
     "on": "Bật",
     "off": "Tắt",
     "loading": "Đang nạp mô hình tủ điện đã tối ưu…",
     "optimised": "Mô hình tối ưu: tải {{size}}, {{gpu}} texture trên GPU, sẵn sàng sau {{ms}} ms",
     "original": "Bản gốc: tải {{size}}, {{gpu}} texture trên GPU, sẵn sàng sau {{ms}} ms",
-    "loadOriginal": "Nạp bản gốc {{size}} để so sánh",
     "loadingOriginal": "Đang nạp mô hình gốc…",
-    "originalMissing": "Máy này chưa có bản gốc; README hướng dẫn cách tải về."
+    "originalMissing": "Máy này chưa có bản gốc; README hướng dẫn cách tải về.",
+    "originalLabel": "Bản gốc",
+    "optimisedLabel": "Tối ưu",
+    "originalHint": "Chọn Bản gốc để nạp mô hình gốc {{size}} và so sánh."
   }
 }
