@@ -3,6 +3,7 @@
 // Auth comes from `gh auth login` (stored in the Windows keyring) - no token in this repo.
 //
 // Usage: npm run push -- "commit message"      (add --dry-run to list the files only)
+//        add --branch=feature/name to push to another branch; a new branch starts from main.
 // It mirrors the working folder: files in .gitignore are skipped, .env is NEVER uploaded,
 // and files deleted locally are removed from the repo in the new commit.
 import { execFileSync } from "node:child_process";
@@ -10,9 +11,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 const REPO = "Pavithravignesh/3d-layout-editor";
-const BRANCH = "main";
+const args = process.argv.slice(2);
+const BRANCH = args.find((a) => a.startsWith("--branch="))?.slice("--branch=".length) || "main";
 const ROOT = process.cwd();
-const message = process.argv.slice(2).filter((a) => a !== "--dry-run").join(" ").trim() || "Update from npm run push";
+const message = args.filter((a) => !a.startsWith("--")).join(" ").trim() || "Update from npm run push";
 
 function gh(method, endpoint, body) {
   const args = ["api", "-X", method, `repos/${REPO}/${endpoint}`];
@@ -55,15 +57,22 @@ if (process.argv.includes("--dry-run")) {
 if (files.some((f) => f === ".env" || f.endsWith("/.env"))) throw new Error("Refusing to upload .env");
 console.log(`Uploading ${files.length} files to ${REPO}...`);
 
-function headSha() {
+function headSha(branch = BRANCH) {
   try {
-    return gh("GET", `git/ref/heads/${BRANCH}`).object.sha;
+    return gh("GET", `git/ref/heads/${branch}`).object.sha;
   } catch {
     return null;
   }
 }
 
 let parent = headSha();
+if (!parent && BRANCH !== "main") {
+  const base = headSha("main");
+  if (!base) throw new Error("main does not exist yet; push main first");
+  gh("POST", "git/refs", { ref: `refs/heads/${BRANCH}`, sha: base });
+  console.log(`Created branch ${BRANCH} from main`);
+  parent = base;
+}
 if (!parent) {
   // The Git Data API does not work on an empty repo, so create the first commit with one file.
   const readme = fs.readFileSync(path.join(ROOT, "README.md")).toString("base64");

@@ -1,0 +1,43 @@
+# Runs the model pipeline (tools/optimise-model.mjs) with KTX2 textures, which need the native
+# `toktx` encoder, and keeps the optimised models and the before/after report as an artifact.
+name: Optimise model
+
+on:
+  push:
+    branches: [feature/model-optimisation]
+    paths: [tools/optimise-model.mjs, .github/workflows/optimise-model.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  optimise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save @gltf-transform/cli@4
+      - name: Install the KTX2 encoder (toktx)
+        run: |
+          curl -sSL -o ktx.deb https://github.com/KhronosGroup/KTX-Software/releases/download/v4.3.2/KTX-Software-4.3.2-Linux-x86_64.deb
+          sudo apt-get install -y ./ktx.deb
+          toktx --version
+      - name: Download the source model (Poly Haven, CC0)
+        run: |
+          mkdir -p models-source/utility_box_02_4k/textures
+          cd models-source/utility_box_02_4k
+          curl -sSL https://api.polyhaven.com/files/utility_box_02 -o files.json
+          curl -sSL "$(jq -r '.gltf["4k"].gltf.url' files.json)" -o utility_box_02_4k.gltf
+          jq -r '.gltf["4k"].gltf.include | to_entries[] | "\(.key) \(.value.url)"' files.json |
+            while read -r name url; do curl -sSL "$url" -o "$name"; done
+          ls -la . textures
+      - run: node tools/optimise-model.mjs models-source/utility_box_02_4k/utility_box_02_4k.gltf out --ktx2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: optimised-model
+          path: out/
