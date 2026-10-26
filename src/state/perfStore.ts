@@ -14,6 +14,9 @@ export function publishPerf(next: PerfSnapshot) {
   listeners.forEach((l) => l());
 }
 
+/** The latest snapshot, for non-React readers such as error reports. */
+export const getPerf = (): PerfSnapshot => snapshot;
+
 export function usePerf(): PerfSnapshot {
   return useSyncExternalStore(
     (listener) => {

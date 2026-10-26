@@ -222,13 +222,40 @@ The first command downloads the source model (it is kept out of git); the second
 
 **Limits, stated plainly:** the source is an outdoor utility box (0.92 × 0.43 × 1.12 m), stretched to the cabinet's catalogue size (0.8 × 0.6 × 2.0 m) so snapping and the 0.6 m rule stay exact. Only the near level is used in the editor; switching levels by distance is described in the design document but not built here.
 
+## Monitoring (optional): Sentry
+
+Error and performance reporting to [Sentry](https://sentry.io). **It is off by default:** without a DSN nothing is loaded and nothing is sent, so a fresh clone behaves exactly as before.
+
+| What is reported | Detail |
+| --- | --- |
+| Uncaught errors | Including errors in the first moments before the SDK has loaded (queued, then sent) |
+| A crash in the 3D view | The error boundary keeps the panels working and reports the error with its component stack |
+| WebGL context lost | Common on integrated GPUs under memory pressure; sent as a warning |
+| Page-load performance | Load timing and Web Vitals for a sample of sessions (10% by default) |
+| Context on every report | Tags for the display switches (look, instancing) and language; item and selection counts; the latest fps, frame time and draw calls |
+
+**Privacy:** no user details, cookies, headers or request bodies are collected, and no layout data is sent, only counts. There is no session replay.
+
+**Cost to the first download:** about 1 KB. The SDK is a separate 57 KB (gzipped) file, loaded after the editor appears and only when a DSN is set.
+
+To turn it on, create a free React project at sentry.io and set its DSN as a build-time environment variable (locally in a `.env.local` file, which is not committed; on Vercel under **Settings → Environment Variables**):
+
+| Variable | Needed | Purpose |
+| --- | --- | --- |
+| `VITE_SENTRY_DSN` | Yes | Where reports go. It is visible in the browser by design, so it is not a secret |
+| `VITE_SENTRY_ENVIRONMENT` | No | e.g. `preview`; defaults to the build mode |
+| `VITE_SENTRY_TRACES_SAMPLE_RATE` | No | Share of sessions with performance traces, 0 to 1; default `0.1` |
+| `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | No | Upload source maps at build time, so stack traces show the original code. The token **is** a secret: set it only in Vercel, never in the repository. The maps are deleted from `dist/` after the upload, so they are not published |
+
+On Vercel, reports are tagged with the deployed commit automatically.
+
 ## Tests
 
 ```bash
 npm test
 ```
 
-49 unit tests cover snapping and rotation (only quarter turns accepted from input), the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), keyboard nudging (one cell per step, nothing recorded at the floor's edge), multi-select (toggle, range, select all), group moves clamped as a unit, group delete and its undo, copy, cut and cascading paste, labels, the bill of materials, the performance test layout (each batch adds new items with unique ids), and fitting a model to its catalogue size.
+54 unit tests cover snapping and rotation (only quarter turns accepted from input), the clearance rule (including the brute-force comparison and the exactly-0.6 m boundary), undo/redo (exact restore of position and list order, redo cleared by a new edit, history limit, batches), keyboard nudging (one cell per step, nothing recorded at the floor's edge), multi-select (toggle, range, select all), group moves clamped as a unit, group delete and its undo, copy, cut and cascading paste, labels, the bill of materials, the performance test layout (each batch adds new items with unique ids), fitting a model to its catalogue size, and the monitoring settings (off without a DSN; reports carry counts and switches, not layout data).
 
 ## Trade-offs and next steps
 
