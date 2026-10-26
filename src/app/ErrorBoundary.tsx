@@ -1,4 +1,5 @@
-import { Component, type ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { reportError } from './monitoring';
 
 type Props = { fallback: ReactNode; children: ReactNode };
 
@@ -10,8 +11,9 @@ export class ErrorBoundary extends Component<Props, { failed: boolean }> {
     return { failed: true };
   }
 
-  componentDidCatch(error: unknown) {
+  componentDidCatch(error: unknown, info: ErrorInfo) {
     console.error('3D view failed', error);
+    reportError(error, { area: '3d-view', componentStack: info.componentStack });
   }
 
   render() {
